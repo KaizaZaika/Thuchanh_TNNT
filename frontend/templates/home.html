@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Vision Item Manager</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      .item-list {
+        margin: 20px 0;
+      }
+      .item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+      .item img {
+        max-width: 100px;
+        max-height: 100px;
+        margin-right: 10px;
+      }
+      .item .details {
+        flex-grow: 1;
+      }
+      .item button {
+        background-color: #ff4444;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .item button:hover {
+        background-color: #cc0000;
+      }
+      .add-item,
+      .upload-image {
+        margin: 20px 0;
+      }
+      .add-item input,
+      .upload-image input {
+        padding: 8px;
+        margin-right: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .add-item button,
+      .upload-image button {
+        padding: 8px 15px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .add-item button:hover,
+      .upload-image button:hover {
+        background-color: #45a049;
+      }
+      .model-gallery {
+        margin: 20px 0;
+        display: flex;
+        flex-direction: column; /* Changed to column for vertical layout */
+        gap: 10px;
+        max-height: 500px; /* Optional: limit height with scrollbar if needed */
+        overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */
+      }
+      .model-gallery img {
+        max-width: 150px;
+        max-height: 150px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .model-gallery::-webkit-scrollbar {
+        width: 8px;
+      }
+      .model-gallery::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 4px;
+      }
+      .model-gallery::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
+      }
+      .image-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .image-container img {
+        display: block;
+      }
+
+      .delete-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: rgba(255, 0, 0, 0.7);
+        color: white;
+        border: none;
+        padding: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .image-container:hover .delete-btn {
+        opacity: 1;
+      }
+      .image-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.image-wrapper img {
+    display: block;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 0, 0, 0.7);
+    color: white;
+    border: none;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none; /* Ignore button hover itself */
+    transition: opacity 0.3s;
+}
+
+.image-wrapper img:hover + .delete-btn {
+    opacity: 1;
+    pointer-events: auto; /* Activate button when visible */
+}
+    </style>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Computer Vision Item Manager</h1>
+
+      <div class="add-item">
+        <input type="text" id="itemInput" placeholder="Enter item name" />
+        <button onclick="addItem()">Add Item</button>
+      </div>
+
+      <!-- Section to display all images from the models folder -->
+      <div class="model-gallery">
+    {% for image in model_images %}
+        <div class="image-wrapper">
+            <img src="/models/{{ image }}" alt="{{ image }}" title="{{ image }}">
+            <button class="delete-btn" onclick="deleteImage(this)">Delete</button>
+        </div>
+    {% endfor %}
+        </div>
+      <div class="item-list" id="itemList">
+        <!-- Items will be dynamically added here -->
+      </div>
+
+      <div class="upload-image">
+        <input type="file" id="imageInput" accept="image/*" />
+        <button onclick="uploadImage()">Upload Image</button>
+      </div>
+    </div>
+
+    <script>
+      function addItem() {
+        const itemInput = document.getElementById("itemInput");
+        const itemList = document.getElementById("itemList");
+        const itemName = itemInput.value.trim();
+
+        if (itemName) {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "item";
+          itemDiv.innerHTML = `
+                    <img src="/models/${itemName}.jpg" alt="${itemName}" onerror="this.style.display='none';">
+                    <div class="details">${itemName}</div>
+                    <button onclick="this.parentElement.remove()">Remove</button>
+                `;
+          itemList.appendChild(itemDiv);
+          itemInput.value = "";
+        }
+      }
+
+      function uploadImage() {
+        const imageInput = document.getElementById("imageInput");
+        const file = imageInput.files[0];
+        if (file) {
+          // Here you would typically send the file to your PyTorch backend
+          alert(
+            "Image uploaded: " +
+              file.name +
+              ". Please process it with your PyTorch model."
+          );
+          imageInput.value = "";
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,91 @@
+body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .item-list {
+            margin: 20px 0;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .item img {
+            max-width: 100px;
+            max-height: 100px;
+            margin-right: 10px;
+        }
+        .item .details {
+            flex-grow: 1;
+        }
+        .item button {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .item button:hover {
+            background-color: #cc0000;
+        }
+        .add-item, .upload-image {
+            margin: 20px 0;
+        }
+        .add-item input, .upload-image input {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .add-item button, .upload-image button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .add-item button:hover, .upload-image button:hover {
+            background-color: #45a049;
+        }
+        .model-gallery {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column; /* Changed to column for vertical layout */
+            gap: 10px;
+            max-height: 500px; /* Optional: limit height with scrollbar if needed */
+            overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */
+        }
+        .model-gallery img {
+            max-width: 150px;
+            max-height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .model-gallery::-webkit-scrollbar {
+            width: 8px;
+        }
+        .model-gallery::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 4px;
+        }
+        .model-gallery::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+        }
