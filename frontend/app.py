@@ -1,4 +1,6 @@
 import os
+#!pip install flask_sqlalchemy flask-login
+
 from flask import Flask, render_template, url_for, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
@@ -28,7 +30,9 @@ def serve_model_image(filename):
     print(f"Requested file: {filename}")  # Debug print
     return send_from_directory(MODELS_DIR, filename)
 
-@app.route('/')
+
+
+"""
 def home():
     print(f"Models directory: {MODELS_DIR}")  # Debug print
     model_images = [f for f in os.listdir(MODELS_DIR) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
@@ -36,9 +40,17 @@ def home():
     model_images = [f for f in model_images if f in expected_filenames or f.lower() in [ef.lower() for ef in expected_filenames]]
     print(f"Found images: {model_images}")  # Debug print
     return render_template('home.html', model_images=model_images)
+"""
+@app.route('/')
+def home():
+    print("Rendering index.html from templates folder")
+    image_folder = os.path.join(app.root_path, 'static', 'image')
+    image_files = [f for f in os.listdir(image_folder) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
+    print(f"Found images: {image_files}")  # Debug print
+    limited_images = image_files[:10]
+    return render_template('index.html', images=limited_images)
 
-
-
+"""
 @app.route('/login')
 def login():
     return render_template('login.html')
@@ -46,6 +58,8 @@ def login():
 @app.route('/register')
 def register():
     return render_template('register.html')
+"""
+
 
 if __name__ == '__main__':
     app.run(debug=True)
