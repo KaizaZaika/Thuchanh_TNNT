@@ -1,5 +1,5 @@
 const express = require('express');
-const fs = require('fs');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 const app = express();
@@ -8,22 +8,20 @@ const PORT = 3000;
 // Serve static files (CSS, JS, images, etc.)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Serve the images/models directory as a static directory
+// Serve the images directory from the backend
 app.use('/images/models', express.static(path.join(__dirname, 'images/models')));
 
-// Route to fetch product images
+// Initialize SQLite database
+const db = new sqlite3.Database('./products.db');
+
+// Route to fetch products from the database
 app.get('/products', (req, res) => {
-    const imagesDir = path.join(__dirname, 'images/models');
-    fs.readdir(imagesDir, (err, files) => {
+    db.all('SELECT * FROM products', [], (err, rows) => {
         if (err) {
-            return res.status(500).send('Error reading images directory');
+            console.error('Error querying database:', err);
+            return res.status(500).send('Error fetching products from database');
         }
-        const products = files.map(file => ({
-            name: path.basename(file, path.extname(file)), // Extract name from file
-            url: `/images/models/${file}` // Generate URL for the image
-        }));
-        console.log(products); // Debug: Log the generated product data
-        res.json(products);
+        res.json(rows);
     });
 });
 
