@@ -10,36 +10,20 @@
       #detectedItems {
         margin: 20px 0;
       }
-      table {
-        width: 100%;
-        max-width: 800px;
-        border-collapse: collapse;
-        margin: 0 auto;
+      #detectedItems ul {
+        list-style-type: none;
+        padding: 0;
       }
-      th, td {
-        padding: 10px;
-        text-align: left;
-        border: 1px solid #ddd;
-      }
-      th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-      }
-      img {
-        max-width: 100px;
-        height: auto;
-        display: block;
-      }
-      .no-items {
-        text-align: center;
-        padding: 20px;
+      #detectedItems li {
+        padding: 5px 0;
+        font-size: 16px;
       }
     </style>
   </head>
   <body>
     <h2>Detected Items</h2>
     <div id="detectedItems">
-      <!-- Detected items table will be inserted here -->
+      <!-- Detected items will be inserted here -->
     </div>
 
     <script>
@@ -48,71 +32,21 @@
         .then(response => response.json())
         .then(data => {
           const detectedItemsDiv = document.getElementById('detectedItems');
-          console.log('Detected items received:', data.detected_items); // Debug: Check items received
           if (data.detected_items && data.detected_items.length > 0) {
-            // Fetch product details from products.db
-            fetch('/products')
-              .then(response => response.json())
-              .then(products => {
-                console.log('Products received:', products); // Debug: Check products received
-                const table = document.createElement('table');
-                const headerRow = document.createElement('tr');
-                ['Name', 'Image', 'Price'].forEach(header => {
-                  const th = document.createElement('th');
-                  th.textContent = header;
-                  headerRow.appendChild(th);
-                });
-                table.appendChild(headerRow);
-
-                // Process all detected items
-                data.detected_items.forEach(item => {
-                  console.log('Processing item:', item); // Debug: Track each item
-                  const product = products.find(p => {
-                    const match = p.name.toLowerCase() === item.toLowerCase();
-                    console.log(`Matching ${item} with ${p.name}:`, match); // Debug: Check matching
-                    return match;
-                  });
-
-                  const row = document.createElement('tr');
-                  
-                  // Name column
-                  const nameCell = document.createElement('td');
-                  nameCell.textContent = item; // Show the detected item name regardless of match
-                  row.appendChild(nameCell);
-
-                  // Image column
-                  const imageCell = document.createElement('td');
-                  if (product) {
-                    const img = document.createElement('img');
-                    img.src = product.url;
-                    img.alt = product.name;
-                    imageCell.appendChild(img);
-                  } else {
-                    imageCell.textContent = 'No image available';
-                  }
-                  row.appendChild(imageCell);
-
-                  // Price column
-                  const priceCell = document.createElement('td');
-                  priceCell.textContent = product ? `$${product.price.toLocaleString()}` : 'Not found';
-                  row.appendChild(priceCell);
-
-                  table.appendChild(row);
-                });
-
-                detectedItemsDiv.appendChild(table);
-              })
-              .catch(error => {
-                console.error('Error fetching products:', error);
-                detectedItemsDiv.textContent = 'Error loading product details.';
-              });
+            const itemsList = document.createElement('ul');
+            data.detected_items.forEach(item => {
+              const li = document.createElement('li');
+              li.textContent = item;
+              itemsList.appendChild(li);
+            });
+            detectedItemsDiv.appendChild(itemsList);
           } else {
             detectedItemsDiv.textContent = 'No detected items found.';
           }
         })
         .catch(error => {
           console.error('Error fetching detected items:', error);
-          detectedItemsDiv.textContent = 'Error loading detected items.';
+          document.getElementById('detectedItems').textContent = 'Error loading detected items.';
         });
     </script>
   </body>

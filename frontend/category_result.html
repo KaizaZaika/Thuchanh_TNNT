@@ -16,7 +16,8 @@
         border-collapse: collapse;
         margin: 0 auto;
       }
-      th, td {
+      th,
+      td {
         padding: 10px;
         text-align: left;
         border: 1px solid #ddd;
@@ -40,76 +41,83 @@
 
     <script>
       // Fetch detected items
-      fetch('/detected-items')
-        .then(response => response.json())
-        .then(data => {
+      fetch("/detected-items")
+        .then((response) => response.json())
+        .then((data) => {
           const detectedItems = data.detected_items || [];
-          const container = document.getElementById('detectedItems');
+          const container = document.getElementById("detectedItems");
+          console.log("Detected items:", detectedItems); // Debug log
 
           if (detectedItems.length === 0) {
-            container.textContent = 'No detected items found.';
+            container.textContent = "No detected items found.";
             return;
           }
 
           // Fetch product list
-          fetch('/products')
-            .then(response => response.json())
-            .then(products => {
-              const table = document.createElement('table');
-              const headerRow = document.createElement('tr');
-              ['Name', 'Image', 'Price'].forEach(text => {
-                const th = document.createElement('th');
+          fetch("/products")
+            .then((response) => response.json())
+            .then((products) => {
+              console.log("Products fetched:", products); // Debug log
+              const table = document.createElement("table");
+              const headerRow = document.createElement("tr");
+              ["Name", "Image", "Price"].forEach((text) => {
+                const th = document.createElement("th");
                 th.textContent = text;
                 headerRow.appendChild(th);
               });
               table.appendChild(headerRow);
 
-              detectedItems.forEach(item => {
-                const lowerItem = item.toLowerCase();
-                const matchedProduct = products.find(p => p.name.toLowerCase() === lowerItem);
+              detectedItems.forEach((item) => {
+                const lowerItem = item.toLowerCase().trim();
+                console.log(`Processing item: ${lowerItem}`); // Debug log
 
-                const row = document.createElement('tr');
+                // Match only by name
+                const matchedProduct = products.find(
+                  (p) => p.name.toLowerCase().trim() === lowerItem
+                );
+                console.log(`Matched product for ${lowerItem}:`, matchedProduct); // Debug log
 
-                // Name
-                const nameCell = document.createElement('td');
-                nameCell.textContent = item;
+                const row = document.createElement("tr");
+
+                // Name column
+                const nameCell = document.createElement("td");
+                nameCell.textContent = matchedProduct ? matchedProduct.name : item;
                 row.appendChild(nameCell);
 
-                // Image
-                const imageCell = document.createElement('td');
-                if (matchedProduct && matchedProduct.url) {
-                  const img = document.createElement('img');
+                // Image column
+                const imageCell = document.createElement("td");
+                if (matchedProduct) {
+                  const img = document.createElement("img");
                   img.src = matchedProduct.url;
                   img.alt = matchedProduct.name;
                   imageCell.appendChild(img);
                 } else {
-                  imageCell.textContent = 'No image available';
+                  imageCell.textContent = "No image available";
                 }
                 row.appendChild(imageCell);
 
-                // Price
-                const priceCell = document.createElement('td');
-                if (matchedProduct && matchedProduct.price !== undefined) {
-                  priceCell.textContent = `$${Number(matchedProduct.price).toLocaleString()}`;
-                } else {
-                  priceCell.textContent = 'Not found';
-                }
+                // Price column
+                const priceCell = document.createElement("td");
+                priceCell.textContent = matchedProduct
+                  ? `$${Number(matchedProduct.price).toLocaleString()}`
+                  : "Not found";
                 row.appendChild(priceCell);
 
-                table.appendChild(row);
+                table.appendChild(row); // Add row immediately
               });
 
-              container.innerHTML = '';
-              container.appendChild(table);
+              container.innerHTML = ""; // Clear container
+              container.appendChild(table); // Add table once all rows are built
             })
-            .catch(err => {
-              console.error('Error loading products:', err);
-              container.textContent = 'Error loading product details.';
+            .catch((err) => {
+              console.error("Error loading products:", err);
+              container.textContent = "Error loading product details.";
             });
         })
-        .catch(err => {
-          console.error('Error loading detected items:', err);
-          document.getElementById('detectedItems').textContent = 'Error loading detected items.';
+        .catch((err) => {
+          console.error("Error loading detected items:", err);
+          document.getElementById("detectedItems").textContent =
+            "Error loading detected items.";
         });
     </script>
   </body>
