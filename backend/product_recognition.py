@@ -222,8 +222,9 @@ for i in range(len(im_scene_list)):
 txt_file = results_folder + "detected_items.txt"
 with open(txt_file, "w") as f:
     for item in detected_items:
-        f.write(f"Product: {item['product']}\n")
-        f.write(f"Price: {item['price']:.2f}\n")
+        #f.write(f"Product: {item['product']}\n")
+        #f.write(f"Price: {item['price']:.2f}\n")
+        f.write(f"{item['product']}\n")
         f.write("\n")
 
 print(f"Detected items exported to {txt_file}")
