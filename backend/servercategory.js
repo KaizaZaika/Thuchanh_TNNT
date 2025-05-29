@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const multer = require('multer'); // For handling file uploads
 const fs = require('fs'); // For file system operations
-
+const { exec } = require('child_process');
 const app = express();
 const PORT = 3200;
 
@@ -108,7 +108,7 @@ const categoryStorage = multer.diskStorage({
 });
 const categoryUpload = multer({ storage: categoryStorage });
 
-// Route to handle adding a new category
+// Modified route to handle adding a new category and running product recognition
 app.post('/add-category', categoryUpload.single('categoryImage'), (req, res) => {
   const { categoryName } = req.body;
 
@@ -117,11 +117,28 @@ app.post('/add-category', categoryUpload.single('categoryImage'), (req, res) => 
     return res.status(400).send('No file uploaded');
   }
 
-  const savedFilePath = `/images/scenes/${categoryName}${path.extname(req.file.originalname)}`;
+  const fileName = req.file.filename; // e.g., categoryName + extension
+  const savedFilePath = `/images/scenes/${fileName}`;
   console.log(`File saved at: ${savedFilePath}`);
-  res.send(`Category image saved successfully as ${savedFilePath}`);
-});
 
+  // Run product_recognition.py with the uploaded file name as argument
+  exec(`python product_recognition.py ${fileName}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error running product recognition: ${error.message}`);
+      return res.status(500).send('Error running product recognition');
+    }
+    // After the Python script runs, read the detected_items.txt file
+    const txtFilePath = path.join(__dirname, 'images', 'results', 'detected_items.txt');
+    fs.readFile(txtFilePath, 'utf8', (readErr, data) => {
+      if (readErr) {
+        console.error(`Error reading detected items file: ${readErr.message}`);
+        return res.status(500).send('Error reading detected items');
+      }
+      // Send the txt file content as response to frontend
+      res.send(data);
+    });
+  });
+});
 // Route to test database connection
 app.get('/test-db', (req, res) => {
   db.get('SELECT 1', [], (err, row) => {

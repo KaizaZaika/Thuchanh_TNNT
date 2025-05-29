@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Category Result</title>
+</head>
+<body>
+  <h2>Detected Items</h2>
+  <pre id="result"></pre>
+  <a href="index.html">Back</a>
+  <script>
+    document.getElementById('result').textContent = localStorage.getItem('categoryResult') || 'No result found.';
+  </script>
+</body>
+</html>

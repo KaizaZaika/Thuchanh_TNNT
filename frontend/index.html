@@ -59,12 +59,6 @@
             <button class="tab-link" onclick="openTab(event, 'add-category')">
               Add Category
             </button>
-            <button
-              class="tab-link"
-              onclick="openTab(event, 'manage-products')"
-            >
-              Manage Products
-            </button>
           </div>
 
           <!-- Tab Content -->
@@ -141,7 +135,27 @@
               <input type="submit" value="Add Category" class="btn" />
             </form>
           </div>
+          <script>
+            document
+              .querySelector(".category-form")
+              .addEventListener("submit", function (e) {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
 
+                fetch("http://localhost:3200/add-category", {
+                  method: "POST",
+                  body: formData,
+                })
+                  .then((res) => res.json())
+                  .then((data) => {
+                    // Save result to localStorage and redirect
+                    localStorage.setItem("categoryResult", data.result);
+                    window.location.href = "category_result.html";
+                  })
+                  .catch((err) => alert("Error: " + err));
+              });
+          </script>
           <div id="manage-products" class="tab-content">
             <h3>Manage Products</h3>
             <p>Here you can manage your products (e.g., edit or delete).</p>

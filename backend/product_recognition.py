@@ -129,8 +129,8 @@ sr.readModel(train_dict[nn_used][1])
 sr.setModel(train_dict[nn_used][0], 4)
 
 # upsample scene images
-im_scene_list = [sr.upsample(im) for im in im_scene_list_original]
-#im_scene_list = im_scene_list_original
+#im_scene_list = [sr.upsample(im) for im in im_scene_list_original]
+im_scene_list = im_scene_list_original
 
 #save preprocessed images
 #new_scene_folder = f"images/results/upscaled_scenes/upscaled_{nn_used}/"
