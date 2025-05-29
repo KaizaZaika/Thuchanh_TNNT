@@ -18,6 +18,8 @@ app.use(express.static(path.join(__dirname, "../frontend")));
 app.use("/images/models", express.static(path.join(__dirname, "images/models")));
 app.use("/images/scenes", express.static(path.join(__dirname, "images/scenes")));
 
+// Serve static files from backend/images
+app.use('/images', express.static(path.join(__dirname, 'images')));
 // Initialize SQLite database
 const db = new sqlite3.Database("./products.db");
 
