@@ -31,6 +31,10 @@
         height: auto;
         display: block;
       }
+      .total-row {
+        font-weight: bold;
+        background-color: #e6f3ff; /* Light blue background for highlighting */
+      }
     </style>
   </head>
   <body>
@@ -67,6 +71,8 @@
               });
               table.appendChild(headerRow);
 
+              let totalPrice = 0; // Variable to track the sum of prices
+
               detectedItems.forEach((item) => {
                 const lowerItem = item.toLowerCase().trim();
                 console.log(`Processing item: ${lowerItem}`); // Debug log
@@ -98,13 +104,35 @@
 
                 // Price column
                 const priceCell = document.createElement("td");
-                priceCell.textContent = matchedProduct
-                  ? `$${Number(matchedProduct.price).toLocaleString()}`
-                  : "Not found";
+                if (matchedProduct) {
+                  const price = Number(matchedProduct.price);
+                  priceCell.textContent = price.toLocaleString();
+                  totalPrice += price; // Add to total if there's a matched product
+                } else {
+                  priceCell.textContent = "Not found";
+                }
                 row.appendChild(priceCell);
 
                 table.appendChild(row); // Add row immediately
               });
+
+              // Add a final row for the total price
+              const totalRow = document.createElement("tr");
+              totalRow.className = "total-row"; // Apply highlighting style
+
+              const totalNameCell = document.createElement("td");
+              totalNameCell.textContent = "Total Price";
+              totalRow.appendChild(totalNameCell);
+
+              const totalImageCell = document.createElement("td");
+              totalImageCell.textContent = ""; // Empty cell for image column
+              totalRow.appendChild(totalImageCell);
+
+              const totalPriceCell = document.createElement("td");
+              totalPriceCell.textContent = totalPrice.toLocaleString(); // Display total price
+              totalRow.appendChild(totalPriceCell);
+
+              table.appendChild(totalRow); // Add total row to table
 
               container.innerHTML = ""; // Clear container
               container.appendChild(table); // Add table once all rows are built
