@@ -14,11 +14,13 @@ app.use(express.json());
 // Serve static files (CSS, JS, images, etc.)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Serve the images directory from the backend
+// Serve the images directory for products and categories
 app.use('/images/models', express.static(path.join(__dirname, 'images/models')));
+app.use('/images/scenes', express.static(path.join(__dirname, 'images/scenes')));
 
 // Initialize SQLite database
 const db = new sqlite3.Database('./products.db');
+
 // Route to clean up database entries with missing image files
 app.get('/cleanup-database', (req, res) => {
   const query = 'SELECT id, url FROM products';
@@ -50,8 +52,9 @@ app.get('/cleanup-database', (req, res) => {
     }
   });
 });
-// Configure multer for file uploads
-const storage = multer.diskStorage({
+
+// Configure multer for product file uploads
+const productStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, 'images/models');
     if (!fs.existsSync(uploadPath)) {
@@ -66,10 +69,10 @@ const storage = multer.diskStorage({
     cb(null, uniqueName);
   },
 });
-const upload = multer({ storage });
+const productUpload = multer({ storage: productStorage });
 
 // Route to handle adding a new product
-app.post('/add-product', upload.single('image'), (req, res) => {
+app.post('/add-product', productUpload.single('image'), (req, res) => {
   const { name, price, category, brand } = req.body;
   const imageUrl = `/images/models/${req.file.filename}`;
 
@@ -85,6 +88,38 @@ app.post('/add-product', upload.single('image'), (req, res) => {
     }
     res.send('Product added successfully');
   });
+});
+
+// Configure multer for category file uploads
+const categoryStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, 'images/scenes');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const { categoryName } = req.body; // Get the category name from the form
+    const extension = path.extname(file.originalname); // Get the file extension
+    const fileName = `${categoryName}${extension}`; // Use the category name as the file name
+    cb(null, fileName);
+  },
+});
+const categoryUpload = multer({ storage: categoryStorage });
+
+// Route to handle adding a new category
+app.post('/add-category', categoryUpload.single('categoryImage'), (req, res) => {
+  const { categoryName } = req.body;
+
+  // Check if the file was uploaded successfully
+  if (!req.file) {
+    return res.status(400).send('No file uploaded');
+  }
+
+  const savedFilePath = `/images/scenes/${categoryName}${path.extname(req.file.originalname)}`;
+  console.log(`File saved at: ${savedFilePath}`);
+  res.send(`Category image saved successfully as ${savedFilePath}`);
 });
 
 // Route to test database connection

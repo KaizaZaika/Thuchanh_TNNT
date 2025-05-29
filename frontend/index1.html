@@ -45,166 +45,53 @@
         <input type="search" id="search-box" placeholder="search here..." />
         <label for="search-box" class="fas fa-search"></label>
       </form>
-
+      
       <div class="shopping-cart">
-        <div class="tab-container">
-          <!-- Tab Navigation -->
-          <div class="tabs">
-            <button
-              class="tab-link active"
-              onclick="openTab(event, 'add-product')"
-            >
-              Add Product
-            </button>
-            <button class="tab-link" onclick="openTab(event, 'add-category')">
-              Add Category
-            </button>
-            <button
-              class="tab-link"
-              onclick="openTab(event, 'manage-products')"
-            >
-              Manage Products
-            </button>
-          </div>
-
-          <!-- Tab Content -->
-          <div id="add-product" class="tab-content active">
-            <form
-              action="http://localhost:3200/add-product"
-              method="POST"
-              enctype="multipart/form-data"
-              class="product-form"
-            >
-              <h3>Add New Product</h3>
-              <input
-                type="text"
-                name="name"
-                placeholder="Product Name"
-                class="box"
-                required
-              />
-              <input
-                type="number"
-                name="price"
-                placeholder="Price"
-                class="box"
-                step="0.01"
-                required
-              />
-              <input
-                type="text"
-                name="category"
-                placeholder="Category"
-                class="box"
-                required
-              />
-              <input
-                type="text"
-                name="brand"
-                placeholder="Brand Name"
-                class="box"
-                required
-              />
-              <input
-                type="file"
-                name="image"
-                class="box"
-                accept="image/*"
-                required
-              />
-              <input type="submit" value="Add Product" class="btn" />
-            </form>
-          </div>
-
-          <div id="add-category" class="tab-content">
-            <form
-              action="http://localhost:3200/add-category"
-              method="POST"
-              enctype="multipart/form-data"
-              class="category-form"
-            >
-              <h3>Add New Category</h3>
-              <input
-                type="text"
-                name="categoryName"
-                placeholder="Category Name"
-                class="box"
-                required
-              />
-              <input
-                type="file"
-                name="categoryImage"
-                class="box"
-                accept="image/*"
-                required
-              />
-              <input type="submit" value="Add Category" class="btn" />
-            </form>
-          </div>
-
-          <div id="manage-products" class="tab-content">
-            <h3>Manage Products</h3>
-            <p>Here you can manage your products (e.g., edit or delete).</p>
-          </div>
-        </div>
-
-        <!-- Add the following CSS for styling -->
-        <style>
-          .tab-container {
-            width: 100%;
-            margin: 20px 0;
-          }
-
-          .tabs {
-            display: flex;
-            border-bottom: 2px solid #ccc;
-          }
-
-          .tab-link {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: #f1f1f1;
-            border: none;
-            outline: none;
-            transition: background 0.3s;
-          }
-
-          .tab-link.active {
-            background: #007bff;
-            color: white;
-            font-weight: bold;
-          }
-
-          .tab-content {
-            display: none;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-top: none;
-          }
-
-          .tab-content.active {
-            display: block;
-          }
-        </style>
-
-        <!-- Add the following JavaScript for tab functionality -->
-        <script>
-          function openTab(event, tabId) {
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll(".tab-content");
-            tabContents.forEach((content) =>
-              content.classList.remove("active")
-            );
-
-            // Remove active class from all tab links
-            const tabLinks = document.querySelectorAll(".tab-link");
-            tabLinks.forEach((link) => link.classList.remove("active"));
-
-            // Show the selected tab content and set the active class
-            document.getElementById(tabId).classList.add("active");
-            event.currentTarget.classList.add("active");
-          }
-        </script>
+        <form
+          action="http://localhost:3200/add-product"
+          method="POST"
+          enctype="multipart/form-data"
+          class="product-form"
+        >
+          <h3>Add New Product</h3>
+          <input
+            type="text"
+            name="name"
+            placeholder="Product Name"
+            class="box"
+            required
+          />
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            class="box"
+            step="0.01"
+            required
+          />
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            class="box"
+            required
+          />
+          <input
+            type="text"
+            name="brand"
+            placeholder="Brand Name"
+            class="box"
+            required
+          />
+          <input
+            type="file"
+            name="image"
+            class="box"
+            accept="image/*"
+            required
+          />
+          <input type="submit" value="Add Product" class="btn" />
+        </form>
       </div>
 
       <form action="" class="login-form">
@@ -380,6 +267,48 @@
 
     <!-- blogs section starts -->
 
+    <section class="blogs" id="blogs">
+      <form
+        action="http://localhost:3000/add-product"
+        method="POST"
+        enctype="multipart/form-data"
+        class="product-form"
+      >
+        <h3>Add Product</h3>
+        <input
+          type="text"
+          name="name"
+          placeholder="Product Name"
+          class="box"
+          required
+        />
+        <input
+          type="text"
+          name="brand"
+          placeholder="Brand Name"
+          class="box"
+          required
+        />
+        <input
+          type="text"
+          name="category"
+          placeholder="Category"
+          class="box"
+          required
+        />
+        <input
+          type="number"
+          name="price"
+          placeholder="Price"
+          class="box"
+          step="0.01"
+          required
+        />
+        <input type="file" name="image" class="box" accept="image/*" required />
+        <input type="submit" value="Add Product" class="btn" />
+      </form>
+    </section>
+
     <!-- blogs section ends -->
 
     <!-- footer section starts -->
@@ -451,42 +380,87 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/9.0.0/swiper-bundle.min.js"></script>
     <script src="script.js"></script>
-    <div id="popup" class="popup hidden">
-      <p id="popup-message"></p>
-      <button onclick="closePopup()">OK</button>
-    </div>
 
-    <style>
-      .popup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: white;
-        border: 1px solid #ccc;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        text-align: center;
-      }
-
-      .popup.hidden {
-        display: none;
-      }
-
-      .popup button {
-        margin-top: 10px;
-        padding: 5px 10px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-      }
-
-      .popup button:hover {
-        background-color: #0056b3;
-      }
-    </style>
     <!-- custom javascript section ends -->
+
+    <div id="popup" class="popup hidden">
+  <p id="popup-message"></p>
+  <button onclick="closePopup()">OK</button>
+</div>
+
+<script>
+  // Function to show the popup with a custom message
+  function showPopup(message) {
+    const popup = document.getElementById('popup');
+    const popupMessage = document.getElementById('popup-message');
+    popupMessage.textContent = message;
+    popup.classList.remove('hidden');
+  }
+
+  // Function to close the popup
+  function closePopup() {
+    const popup = document.getElementById('popup');
+    popup.classList.add('hidden');
+  }
+
+  // Intercept form submissions for "Add Product" and "Add Category"
+  document.querySelectorAll('form').forEach((form) => {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const formData = new FormData(this);
+      const actionUrl = this.action;
+
+      fetch(actionUrl, {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to submit form');
+          }
+          return response.text();
+        })
+        .then((message) => {
+          showPopup(message); // Show popup with the server response
+        })
+        .catch((error) => {
+          showPopup('An error occurred: ' + error.message);
+        });
+    });
+  });
+</script>
+
+<style>
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
+  }
+
+  .popup.hidden {
+    display: none;
+  }
+
+  .popup button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  .popup button:hover {
+    background-color: #0056b3;
+  }
+</style>
   </body>
 </html>
