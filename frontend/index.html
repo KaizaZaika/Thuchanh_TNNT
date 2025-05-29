@@ -47,35 +47,51 @@
       </form>
 
       <div class="shopping-cart">
-        <div class="box">
-          <i class="fas fa-trash"></i>
-          <img src="image/cart-img-1.png" alt="" />
-          <div class="content">
-            <h3>watermelon</h3>
-            <span class="price">$4.99/-</span>
-            <span class="quantity">qty : 1</span>
-          </div>
-        </div>
-        <div class="box">
-          <i class="fas fa-trash"></i>
-          <img src="image/cart-img-2.png" alt="" />
-          <div class="content">
-            <h3>onion</h3>
-            <span class="price">$4.99/-</span>
-            <span class="quantity">qty : 1</span>
-          </div>
-        </div>
-        <div class="box">
-          <i class="fas fa-trash"></i>
-          <img src="image/cart-img-3.png" alt="" />
-          <div class="content">
-            <h3>chicken</h3>
-            <span class="price">$4.99/-</span>
-            <span class="quantity">qty : 1</span>
-          </div>
-        </div>
-        <div class="total">total : $19.69/-</div>
-        <a href="#" class="btn">checkout</a>
+        <form
+          action="http://localhost:3200/add-product"
+          method="POST"
+          enctype="multipart/form-data"
+          class="product-form"
+        >
+          <h3>Add New Product</h3>
+          <input
+            type="text"
+            name="name"
+            placeholder="Product Name"
+            class="box"
+            required
+          />
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            class="box"
+            step="0.01"
+            required
+          />
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            class="box"
+            required
+          />
+          <input
+            type="text"
+            name="brand"
+            placeholder="Brand Name"
+            class="box"
+            required
+          />
+          <input
+            type="file"
+            name="image"
+            class="box"
+            accept="image/*"
+            required
+          />
+          <input type="submit" value="Add Product" class="btn" />
+        </form>
       </div>
 
       <form action="" class="login-form">
@@ -86,7 +102,6 @@
         <p>don't have a account <a href="#">create now</a></p>
         <input type="submit" value="login now" class="btn" />
       </form>
-      
     </header>
     <!-- header section ends -->
 
@@ -116,34 +131,32 @@
     </section>
     <script>
       // Fetch products from the backend
-      fetch("http://localhost:3000/products")
+      fetch("http://localhost:3200/products")
         .then((response) => response.json())
         .then((products) => {
-          console.log(products);
           const container = document.getElementById("product-container");
           container.innerHTML = ""; // Clear any existing content
           products.forEach((product) => {
             const productHTML = `
-                <div class="swiper-slide box">
-                    <img src="${product.url}" alt="${product.name}" onerror="this.src='/images/default.png';">
-                    <h3>${product.name}</h3>
-                    <div class="price">$4.99/- - 10.99/-</div>
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                    </div>
-                    <a href="#" class="btn">add to cart</a>
+              <div class="swiper-slide box">
+                <img src="${product.url}" alt="${product.name}" onerror="this.src='/images/default.png';">
+                <h3>${product.name}</h3>
+                <div class="price">$${product.price}</div>
+                <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
                 </div>
+                <a href="#" class="btn">add to cart</a>
+              </div>
             `;
             container.innerHTML += productHTML;
           });
         })
         .catch((error) => console.error("Error fetching products:", error));
     </script>
-
     <!-- products section ends -->
 
     <!-- categories section starts -->
@@ -255,15 +268,45 @@
     <!-- blogs section starts -->
 
     <section class="blogs" id="blogs">
-      <form action="http://localhost:3000/add-product" method="POST" enctype="multipart/form-data" class="product-form">
-  <h3>Add Product</h3>
-  <input type="text" name="name" placeholder="Product Name" class="box" required />
-  <input type="text" name="brand" placeholder="Brand Name" class="box" required />
-  <input type="text" name="category" placeholder="Category" class="box" required />
-  <input type="number" name="price" placeholder="Price" class="box" step="0.01" required />
-  <input type="file" name="image" class="box" accept="image/*" required />
-  <input type="submit" value="Add Product" class="btn" />
-</form>
+      <form
+        action="http://localhost:3000/add-product"
+        method="POST"
+        enctype="multipart/form-data"
+        class="product-form"
+      >
+        <h3>Add Product</h3>
+        <input
+          type="text"
+          name="name"
+          placeholder="Product Name"
+          class="box"
+          required
+        />
+        <input
+          type="text"
+          name="brand"
+          placeholder="Brand Name"
+          class="box"
+          required
+        />
+        <input
+          type="text"
+          name="category"
+          placeholder="Category"
+          class="box"
+          required
+        />
+        <input
+          type="number"
+          name="price"
+          placeholder="Price"
+          class="box"
+          step="0.01"
+          required
+        />
+        <input type="file" name="image" class="box" accept="image/*" required />
+        <input type="submit" value="Add Product" class="btn" />
+      </form>
     </section>
 
     <!-- blogs section ends -->
