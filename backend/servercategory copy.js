@@ -146,9 +146,9 @@ app.post(
           return res.status(500).json({ error: "Error reading detected items" });
         }
         console.log(`Detected items from file: ${data}`);
-        res.redirect(
-          `/category_result.html?detected_items=${encodeURIComponent(data.trim())}`
-        );
+        // Send JSON response with detected items
+        const items = data.trim().split('\n').filter(item => item.trim() !== '');
+        res.json({ detected_items: items });
       });
     });
   }

@@ -22,13 +22,10 @@
         border-collapse: collapse;
         width: 100%;
       }
-      table,
-      th,
-      td {
+      table, th, td {
         border: 1px solid black;
       }
-      th,
-      td {
+      th, td {
         padding: 8px;
         text-align: left;
       }
@@ -58,27 +55,23 @@
     </table>
 
     <script>
-      // Fetch and display detected items from /detected-items
-      fetch('/detected-items')
-        .then(response => response.json())
-        .then(data => {
-          const detectedItemsDiv = document.getElementById('detectedItems');
-          if (data.detected_items && data.detected_items.length > 0) {
-            const itemsList = document.createElement('ul');
-            data.detected_items.forEach(item => {
-              const li = document.createElement('li');
-              li.textContent = item;
-              itemsList.appendChild(li);
-            });
-            detectedItemsDiv.appendChild(itemsList);
-          } else {
-            detectedItemsDiv.textContent = 'No detected items found.';
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching detected items:', error);
-          document.getElementById('detectedItems').textContent = 'Error loading detected items.';
+      // Extract and display detected items
+      const urlParams = new URLSearchParams(window.location.search);
+      const detectedItems = urlParams.get('detected_items');
+      const detectedItemsDiv = document.getElementById('detectedItems');
+
+      if (detectedItems) {
+        const itemsArray = decodeURIComponent(detectedItems).split(' ');
+        const itemsList = document.createElement('ul');
+        itemsArray.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          itemsList.appendChild(li);
         });
+        detectedItemsDiv.appendChild(itemsList);
+      } else {
+        detectedItemsDiv.textContent = 'No detected items found.';
+      }
 
       // Fetch and display products from database
       fetch('/products')
