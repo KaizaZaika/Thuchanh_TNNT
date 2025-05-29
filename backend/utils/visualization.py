@@ -250,3 +250,4 @@ def print_detections(bbox_props_list):
             for k, pos in enumerate(positions):
                 print(
                     f"\t\tInstance {k + 1}: (position: ({pos['c'][0]:.0f}, {pos['c'][1]:.0f}), width: {pos['w']:.0f}px, height: {pos['h']:.0f}px)")
+    

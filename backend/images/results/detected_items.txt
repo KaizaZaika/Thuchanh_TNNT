@@ -1,0 +1,24 @@
+Product: haohao(vi cay)
+Price: 13800.00
+
+Product: haohao
+Price: 20000.00
+
+Product: kool
+Price: 14800.00
+
+Product: omachi
+Price: 15000.00
+
+Product: halong
+Price: 40000.00
+
+Product: heohailat
+Price: 49000.00
+
+Product: nautilus
+Price: 50000.00
+
+Product: seacrown
+Price: 39000.00
+

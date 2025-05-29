@@ -1,23 +1,4 @@
 
-# coding: utf-8
-
-# # Product Recognition on Store Shelves
-# ### Introduction:
-# Object detection techniques based on computer vision can be deployed in super market scenarios for the
-# creation of a system capable of recognizing products on store shelves. 
-# Given the image of a store shelf, such a system should be able identify the different products present 
-# therein and may be deployed, e.g. to help visually impaired costumers or to automate some common store
-# management tasks (e.g. detect low in stock or misplaced products).
-# 
-# ### Overall Task:
-# Develop a computer vision system that, given a reference image for each product, is able to identify boxes 
-# of cereals of different brands from one picture of a store shelf. For each type of product displayed in the 
-# shelf the system should report:
-# 
-# 1. Number of instances.
-# 2. Dimension of each instance (width and height of the bounding box that enclose them in pixel).
-# 3. Position in the image reference system of each instance (center of the bounding box that enclose 
-# them in pixel).
 
 # In[55]:
 
@@ -34,6 +15,8 @@
 
 # Imported Libraries
 import sys
+import sqlite3
+import json
 import psutil
 import os
 import numpy as np
@@ -52,10 +35,21 @@ scene_folder = './images/scenes/'
 model_folder = './images/models/'
 video_folder = './images/videos/'
 results_folder = './images/results/'
+db_path = './products.db'
+export_file = results_folder + "detected_items.json"
 os.makedirs(results_folder, exist_ok=True)
 #reloads external modules when they are changed
 #get_ipython().run_line_magic('load_ext', 'autoreload')
 #get_ipython().run_line_magic('autoreload', '2')
+def fetch_product_price(product_name):
+    """Fetch the price of a product from the database."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    query = "SELECT price FROM products WHERE LOWER(name) = LOWER(?)"
+    cursor.execute(query, (product_name.strip(),))  # Normalize product name
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else 0  # Return price or 0 if not found
 
 
 # In[57]:
@@ -167,37 +161,70 @@ matcher_matrix = find_matcher_matrix(im_scene_list, im_model_list, K=15, peaks_k
 
 new_labels = [model_names[l] for l in model_labels]
 
+grand_total = 0  # Initialize grand total for all scenes
+detected_items = []  # List to store detected items and their prices
+
 for i in range(len(im_scene_list)):
     scene_name = scene_filenames[i]
 
     color_threshold = 15
     overlap_threshold = 0.5
     bbox_props = find_bboxes(matcher_matrix[i], new_labels, color_distance_threshold=color_threshold, min_match_threshold=6, bbox_overlap_threshold=overlap_threshold)
+    scene_total = 0  # Initialize total price for the scene
+    processed_products = set()  # Set to track unique products in this scene
 
     w, h, dpi = 960, 720, 75
     fig, ax = plt.subplots(figsize=(w/dpi, h/dpi), dpi=dpi)
     
-    visualize_detections(im_scene_list[i], bbox_props, annotation_offset=100, ax=ax, draw_invalid_bbox=(0))
+    visualize_detections(im_scene_list[i], bbox_props, annotation_offset=100, ax=ax, draw_invalid_bbox=0)
     fig.suptitle(scene_name)
     fig.tight_layout(pad=0.5)
-    #fig.savefig('images/results/found_' + scene_name)
-    #plt.show()
     output_path = results_folder + f'found_{scene_name}'
     fig.savefig(output_path, dpi=dpi)
     plt.close(fig)
     
     print_detections(bbox_props)
+    for bbox in bbox_props:
+        if 'model' in bbox:  # Use 'model' key to identify the product
+            product_name = bbox["model"]
+            # Create a unique identifier for the product instance (e.g., product_name + position)
+            product_id = f"{product_name}_{bbox.get('x', 0)}_{bbox.get('y', 0)}"
+            
+            if product_id not in processed_products:  # Only process if not already counted
+                print(f"Detected product: {product_name}")
+                product_price = fetch_product_price(product_name)  # Fetch price from database
+                print(f"Price fetched: {product_price}")
+                
+                if product_price > 0:  # Only add valid prices
+                    scene_total += product_price
+                    processed_products.add(product_id)  # Mark this product instance as processed
+                    detected_items.append({
+                        "scene": scene_name,
+                        "product": product_name,
+                        "price": product_price,
+                        "bbox": bbox  # Include bounding box details if needed
+                    })
+                else:
+                    a = 1
+                    #print(f"Warning: Invalid price for product '{product_name}' in scene '{scene_name}'")
+            else:
+                a = 1
+                #print(f"Skipped duplicate product: {product_name} at position ({bbox.get('x', 0)}, {bbox.get('y', 0)})")
+        else:
+            print(f"Warning: 'model' key missing in bbox: {bbox}")
+    
+    grand_total += scene_total  # Add scene total to grand total
+    print(f"Total price for scene '{scene_name}': {scene_total:.2f}")
     print(f"Export successful: {output_path}")
 
+# Export detected items to a JSON file
+# Export detected items to a TXT file
+txt_file = results_folder + "detected_items.txt"
+with open(txt_file, "w") as f:
+    for item in detected_items:
+        f.write(f"Product: {item['product']}\n")
+        f.write(f"Price: {item['price']:.2f}\n")
+        f.write("\n")
 
-# In[62]:
-
-
-#print("bbox_props:", bbox_props)
-
-
-# In[ ]:
-
-
-print(f"Memory usage: {psutil.virtual_memory().percent}%")
-
+print(f"Detected items exported to {txt_file}")
+print(f"Grand total price for all scenes: ${grand_total:.2f}")
