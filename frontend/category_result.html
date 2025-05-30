@@ -3,12 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <title>Category Result</title>
+  <style>
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      font-family: Arial, sans-serif;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+      color: #333;
+    }
+    img {
+      max-width: 100px;
+      height: auto;
+    }
+    .error {
+      color: red;
+    }
+  </style>
 </head>
 <body>
   <h1>Scene Name Test</h1>
   <p id="scene-output">Loading scene...</p>
   <h2>Detected Items</h2>
-  <ul id="items-output">Loading items...</ul>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Image</th>
+        <th>Count</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody id="items-output">
+      <tr><td colspan="4">Loading items...</td></tr>
+    </tbody>
+  </table>
 
   <script>
     const sceneOutput = document.getElementById("scene-output");
@@ -19,7 +55,7 @@
     if (scene) {
       sceneOutput.textContent = "Scene name received: " + scene;
 
-      // Fetch detected items from the server
+      // Fetch detected items
       fetch(`/detected-items?scene=${encodeURIComponent(scene)}`)
         .then(response => {
           if (!response.ok) {
@@ -31,23 +67,44 @@
           if (data.detected_items && data.detected_items.length > 0) {
             // Clear loading message
             itemsOutput.innerHTML = "";
-            // Create list items for each detected item
-            data.detected_items.forEach(item => {
-              const [name, count] = item.trim().split(/\s+/); // Split on whitespace
-              const li = document.createElement("li");
-              li.textContent = `${name}: ${count}`;
-              itemsOutput.appendChild(li);
+            // Process each detected item
+            Promise.all(
+              data.detected_items.map(item => {
+                const [name, count] = item.trim().split(/\s+/); // Split on whitespace
+                // Fetch product details for each item
+                return fetch(`/product-details?name=${encodeURIComponent(name)}`)
+                  .then(response => {
+                    if (!response.ok) {
+                      throw new Error(`Product ${name} not found`);
+                    }
+                    return response.json();
+                  })
+                  .then(product => ({ name, count, price: product.price, url: product.url }))
+                  .catch(error => ({ name, count, price: "N/A", url: null, error: error.message }));
+              })
+            ).then(items => {
+              // Render table rows
+              items.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                  <td>${item.name}</td>
+                  <td>${item.url ? `<img src="${item.url}" alt="${item.name}">` : "No image"}</td>
+                  <td>${item.count}</td>
+                  <td>${item.price}${item.error ? ` <span class="error">(${item.error})</span>` : ""}</td>
+                `;
+                itemsOutput.appendChild(tr);
+              });
             });
           } else {
-            itemsOutput.textContent = "No items detected.";
+            itemsOutput.innerHTML = `<tr><td colspan="4">No items detected.</td></tr>`;
           }
         })
         .catch(error => {
-          itemsOutput.textContent = "Error loading items: " + error.message;
+          itemsOutput.innerHTML = `<tr><td colspan="4" class="error">Error loading items: ${error.message}</td></tr>`;
         });
     } else {
       sceneOutput.textContent = "Scene name was NOT provided in the URL.";
-      itemsOutput.textContent = "No items available.";
+      itemsOutput.innerHTML = `<tr><td colspan="4">No items available.</td></tr>`;
     }
   </script>
 </body>

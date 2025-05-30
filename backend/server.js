@@ -221,6 +221,23 @@ app.get("/products", (req, res) => {
   });
 });
 
+app.get("/product-details", (req, res) => {
+  const name = req.query.name;
+  if (!name) {
+    return res.status(400).json({ error: "Product name is required" });
+  }
+  const query = "SELECT name, price, url FROM products WHERE name = ?";
+  db.get(query, [name], (err, row) => {
+    if (err) {
+      console.error(`Error querying product details: ${err.message}`);
+      return res.status(500).json({ error: "Error fetching product details" });
+    }
+    if (!row) {
+      return res.status(404).json({ error: `Product ${name} not found` });
+    }
+    res.json(row);
+  });
+});
 // Serve the index.html file
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
