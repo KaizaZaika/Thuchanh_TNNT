@@ -8,19 +8,18 @@ RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
 WORKDIR /app
 
-# Copy only package files first (better cache and ensures npm install works correctly)
+# Copy only package.json files first
 COPY package*.json ./
 
-# Install all npm dependencies inside container
+# Install Node.js dependencies INSIDE Docker
 RUN npm install
 
-# Now copy the rest of the app
+# Now copy the rest of your backend app
 COPY . .
 
-# Install Python packages
+# Install Python dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt || true
 
 EXPOSE 3200
