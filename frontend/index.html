@@ -254,7 +254,7 @@
     </section>
     <script>
       // Fetch products from the backend
-      fetch("http://localhost:3200/products")
+      fetch("http://backend:3200/products")
         .then((response) => {
           if (!response.ok) throw new Error("Failed to fetch products");
           return response.json();

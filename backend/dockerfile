@@ -1,0 +1,32 @@
+# Base image with Node.js and Python
+FROM node:18-bullseye
+
+# Install Python and OpenCV dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-opencv \
+    libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create working directory
+WORKDIR /app
+
+# Copy Node.js backend code
+COPY package*.json ./
+RUN npm install
+
+# Copy entire backend codebase
+COPY . .
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt || true
+
+# Ensure Python script is executable
+RUN chmod +x product_recognition.py
+
+# Expose backend port (as used in server.js)
+EXPOSE 3200
+
+# Start Node.js server
+CMD ["node", "server.js"]
