@@ -54,10 +54,10 @@
               class="tab-link active"
               onclick="openTab(event, 'add-product')"
             >
-              Add Product
+              Thêm sản phẩm
             </button>
             <button class="tab-link" onclick="openTab(event, 'add-category')">
-              Add Category
+              Thêm ảnh nhận diện
             </button>
           </div>
 
@@ -69,17 +69,17 @@
               enctype="multipart/form-data"
               class="product-form"
             >
-              <h3>Add New Product</h3>
+              <h3>Thêm sản phẩm</h3>
               <input
                 type="text"
                 name="name"
-                placeholder="Product Name"
+                placeholder="Tên sản phẩm"
                 class="box"
                 required
               />
               <input
                 type="number"
-                name="price"
+                name="giá"
                 placeholder="Price"
                 class="box"
                 step="0.01"
@@ -88,14 +88,14 @@
               <input
                 type="text"
                 name="category"
-                placeholder="Category"
+                placeholder="Thuộc loại"
                 class="box"
                 required
               />
               <input
                 type="text"
                 name="brand"
-                placeholder="Brand Name"
+                placeholder="Hãng sản xuất"
                 class="box"
                 required
               />
@@ -106,7 +106,7 @@
                 accept="image/*"
                 required
               />
-              <input type="submit" value="Add Product" class="btn" />
+              <input type="submit" value="Thêm" class="btn" />
             </form>
           </div>
 
@@ -117,7 +117,7 @@
               enctype="multipart/form-data"
               class="category-form"
             >
-              <h3>Add New Category</h3>
+              <h3></h3>
               <input
                 type="text"
                 name="categoryName"
@@ -132,7 +132,7 @@
                 accept="image/*"
                 required
               />
-              <input type="submit" value="Add Category" class="btn" />
+              <input type="submit" value="Thêm" class="btn" />
             </form>
           </div>
 
