@@ -196,12 +196,16 @@
                 alert("Error: " + data.error);
                 return;
               }
-              // Get categoryName from form data
-              const categoryName = formData.get("categoryName");
-              // Redirect to category_result.html with scene query parameter
-              window.location.href = `/category_result.html?scene=${encodeURIComponent(
-                categoryName
-              )}`;
+              // Use the sceneName returned from the server instead of categoryName
+              if (data.sceneName) {
+                window.location.href = `/category_result.html?scene=${encodeURIComponent(
+                  data.sceneName
+                )}`;
+              } else {
+                alert(
+                  "Category added successfully, but scene name not returned"
+                );
+              }
             })
             .catch((error) => {
               console.error("Error:", error);

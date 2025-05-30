@@ -15,11 +15,17 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Serve the images directory for products and categories
-app.use("/images/models", express.static(path.join(__dirname, "images/models")));
-app.use("/images/scenes", express.static(path.join(__dirname, "images/scenes")));
+app.use(
+  "/images/models",
+  express.static(path.join(__dirname, "images/models"))
+);
+app.use(
+  "/images/scenes",
+  express.static(path.join(__dirname, "images/scenes"))
+);
 
 // Serve static files from backend/images
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // Initialize SQLite database
 const db = new sqlite3.Database("./products.db");
@@ -42,7 +48,9 @@ app.get("/cleanup-database", (req, res) => {
     });
 
     if (missingFiles.length > 0) {
-      const deleteQuery = `DELETE FROM products WHERE id IN (${missingFiles.join(",")})`;
+      const deleteQuery = `DELETE FROM products WHERE id IN (${missingFiles.join(
+        ","
+      )})`;
       db.run(deleteQuery, (err) => {
         if (err) {
           console.error("Error deleting entries from database:", err.message);
@@ -111,50 +119,82 @@ const categoryStorage = multer.diskStorage({
 const categoryUpload = multer({ storage: categoryStorage });
 
 // Route to handle adding a new category and running product recognition
-app.post("/add-category", categoryUpload.single("categoryImage"), (req, res) => {
-  const { categoryName } = req.body;
-  if (!req.file) {
-    console.error("No file uploaded");
-    return res.status(400).json({ error: "No file uploaded" });
-  }
-  const fileName = req.file.filename;
-  const baseName = path.parse(fileName).name;
-  const savedFilePath = `/images/scenes/${fileName}`;
-  console.log(`File saved at: ${savedFilePath}`);
-
-  exec(`python product_recognition.py ${fileName}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error running product recognition: ${error.message}`);
-      console.error(`stderr: ${stderr}`);
-      return res.status(500).json({ error: "Error running product recognition" });
+// Route to handle adding a new category and running product recognition
+app.post(
+  "/add-category",
+  categoryUpload.single("categoryImage"),
+  (req, res) => {
+    const { categoryName } = req.body;
+    if (!req.file) {
+      console.error("No file uploaded");
+      return res.status(400).json({ error: "No file uploaded" });
     }
-    console.log(`Python script output: ${stdout}`);
-    const txtFilePath = path.join(__dirname, "images", "results", `detection_at_${baseName}.txt`);
-    fs.readFile(txtFilePath, "utf8", (readErr, data) => {
-      if (readErr) {
-        console.error(`Error reading detected items file: ${readErr.message}`);
-        return res.status(500).json({ error: "Error reading detected items" });
-      }
-      console.log(`Detected items from file: ${data}`);
-      const items = data.trim().split('\n').filter(item => item.trim() !== '');
-      res.json({ success: true });
-    });
-  });
-});
+    const fileName = req.file.filename;
+    const baseName = path.parse(fileName).name;
+    const savedFilePath = `/images/scenes/${fileName}`;
+    console.log(`File saved at: ${savedFilePath}`);
 
+    exec(
+      `python product_recognition.py ${fileName}`,
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error running product recognition: ${error.message}`);
+          console.error(`stderr: ${stderr}`);
+          return res
+            .status(500)
+            .json({ error: "Error running product recognition" });
+        }
+        console.log(`Python script output: ${stdout}`);
+        const txtFilePath = path.join(
+          __dirname,
+          "images",
+          "results",
+          `detection_at_${baseName}.txt`
+        );
+        fs.readFile(txtFilePath, "utf8", (readErr, data) => {
+          if (readErr) {
+            console.error(
+              `Error reading detected items file: ${readErr.message}`
+            );
+            return res
+              .status(500)
+              .json({ error: "Error reading detected items" });
+          }
+          console.log(`Detected items from file: ${data}`);
+          const items = data
+            .trim()
+            .split("\n")
+            .filter((item) => item.trim() !== "");
+          // Return success with the baseName for proper redirection
+          res.json({ success: true, sceneName: baseName });
+        });
+      }
+    );
+  }
+);
 // Route to fetch detected items for a specific scene
 app.get("/detected-items", (req, res) => {
   const sceneName = req.query.scene;
   if (!sceneName) {
     return res.status(400).json({ error: "Scene name is required" });
   }
-  const txtFilePath = path.join(__dirname, "images", "results", `detection_at_${sceneName}.txt`);
+  const txtFilePath = path.join(
+    __dirname,
+    "images",
+    "results",
+    `detection_at_${sceneName}.txt`
+  );
   fs.readFile(txtFilePath, "utf8", (err, data) => {
     if (err) {
       console.error(`Error reading detected items file: ${err.message}`);
-      return res.status(500).json({ error: "Error reading detected items file" });
+      return res
+        .status(500)
+        .json({ error: "Error reading detected items file" });
     }
-    const items = data.trim().split('\n').filter(item => item.trim() !== '');
+    const items = data
+      .trim()
+      .split("\n")
+      .filter((item) => item.trim() !== "");
     res.json({ detected_items: items });
   });
 });
