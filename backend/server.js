@@ -4,15 +4,14 @@ const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
 const { exec } = require("child_process");
+const cors = require("cors");
 const app = express();
 const PORT = 3200;
 
 // Middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// Serve static files (CSS, JS, images, etc.)
-app.use(express.static(path.join(__dirname, "../frontend")));
+app.use(cors()); // Enable CORS for frontend requests
 
 // Serve the images directory for products and categories
 app.use(
@@ -32,7 +31,30 @@ app.use(
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 // Initialize SQLite database
-const db = new sqlite3.Database("./products.db");
+const db = new sqlite3.Database("./products.db", (err) => {
+  if (err) {
+    console.error("Error connecting to database:", err.message);
+  } else {
+    console.log("Connected to SQLite database");
+    // Create products table if it doesn't exist
+    db.run(`
+      CREATE TABLE IF NOT EXISTS products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        price REAL,
+        category TEXT,
+        brand TEXT,
+        url TEXT
+      )
+    `, (err) => {
+      if (err) {
+        console.error("Error creating products table:", err.message);
+      } else {
+        console.log("Products table ready");
+      }
+    });
+  }
+});
 
 // Route to clean up database entries with missing image files
 app.get("/cleanup-database", (req, res) => {
@@ -241,10 +263,6 @@ app.get("/product-details", (req, res) => {
     }
     res.json(row);
   });
-});
-// Serve the index.html file
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
 // Start the server
