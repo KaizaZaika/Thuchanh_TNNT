@@ -6,17 +6,48 @@
 </head>
 <body>
   <h1>Scene Name Test</h1>
-  <p id="output">Loading...</p>
+  <p id="scene-output">Loading scene...</p>
+  <h2>Detected Items</h2>
+  <ul id="items-output">Loading items...</ul>
 
   <script>
-    const output = document.getElementById("output");
+    const sceneOutput = document.getElementById("scene-output");
+    const itemsOutput = document.getElementById("items-output");
     const params = new URLSearchParams(window.location.search);
     const scene = params.get("scene");
 
     if (scene) {
-      output.textContent = "Scene name received: " + scene;
+      sceneOutput.textContent = "Scene name received: " + scene;
+
+      // Fetch detected items from the server
+      fetch(`/detected-items?scene=${encodeURIComponent(scene)}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch detected items");
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.detected_items && data.detected_items.length > 0) {
+            // Clear loading message
+            itemsOutput.innerHTML = "";
+            // Create list items for each detected item
+            data.detected_items.forEach(item => {
+              const [name, count] = item.trim().split(/\s+/); // Split on whitespace
+              const li = document.createElement("li");
+              li.textContent = `${name}: ${count}`;
+              itemsOutput.appendChild(li);
+            });
+          } else {
+            itemsOutput.textContent = "No items detected.";
+          }
+        })
+        .catch(error => {
+          itemsOutput.textContent = "Error loading items: " + error.message;
+        });
     } else {
-      output.textContent = "Scene name was NOT provided in the URL.";
+      sceneOutput.textContent = "Scene name was NOT provided in the URL.";
+      itemsOutput.textContent = "No items available.";
     }
   </script>
 </body>
