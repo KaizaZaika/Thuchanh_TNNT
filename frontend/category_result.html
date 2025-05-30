@@ -26,6 +26,10 @@
     .error {
       color: red;
     }
+    .total-row {
+      font-weight: bold;
+      background-color: #e0e0e0;
+    }
   </style>
 </head>
 <body>
@@ -67,10 +71,13 @@
           if (data.detected_items && data.detected_items.length > 0) {
             // Clear loading message
             itemsOutput.innerHTML = "";
+            let totalPrice = 0;
+
             // Process each detected item
             Promise.all(
               data.detected_items.map(item => {
                 const [name, count] = item.trim().split(/\s+/); // Split on whitespace
+                const countNum = parseInt(count) || 0; // Ensure count is a number
                 // Fetch product details for each item
                 return fetch(`/product-details?name=${encodeURIComponent(name)}`)
                   .then(response => {
@@ -79,11 +86,15 @@
                     }
                     return response.json();
                   })
-                  .then(product => ({ name, count, price: product.price, url: product.url }))
-                  .catch(error => ({ name, count, price: "N/A", url: null, error: error.message }));
+                  .then(product => {
+                    const priceNum = parseInt(product.price) || 0; // Ensure price is a number
+                    totalPrice += priceNum * countNum; // Add to total
+                    return { name, count: countNum, price: priceNum, url: product.url };
+                  })
+                  .catch(error => ({ name, count: countNum, price: "N/A", url: null, error: error.message }));
               })
             ).then(items => {
-              // Render table rows
+              // Render table rows for items
               items.forEach(item => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
@@ -94,6 +105,15 @@
                 `;
                 itemsOutput.appendChild(tr);
               });
+
+              // Add total price row
+              const totalRow = document.createElement("tr");
+              totalRow.className = "total-row";
+              totalRow.innerHTML = `
+                <td colspan="3">Total Price</td>
+                <td>${totalPrice}</td>
+              `;
+              itemsOutput.appendChild(totalRow);
             });
           } else {
             itemsOutput.innerHTML = `<tr><td colspan="4">No items detected.</td></tr>`;
