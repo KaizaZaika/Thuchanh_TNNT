@@ -1,217 +1,23 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Category Result</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
-      #detectedItems {
-        margin: 20px 0;
-      }
-      table {
-        width: 100%;
-        max-width: 800px;
-        border-collapse: collapse;
-        margin: 0 auto;
-      }
-      th,
-      td {
-        padding: 10px;
-        text-align: left;
-        border: 1px solid #ddd;
-      }
-      th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-      }
-      img {
-        max-width: 100px;
-        height: auto;
-        display: block;
-      }
-      .total-row {
-        font-weight: bold;
-        background-color: #e6f3ff; /* Light blue background for highlighting */
-      }
-    </style>
-  </head>
-  <body>
-    <h2>Detected Items</h2>
-    <div id="detectedItems">
-      <!-- Detected items table will be inserted here -->
-    </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Category Result</title>
+</head>
+<body>
+  <h1>Scene Name Test</h1>
+  <p id="output">Loading...</p>
 
-    <script>
-      // Get scene name from URL query parameter
-      const urlParams = new URLSearchParams(window.location.search);
-      const sceneName = urlParams.get("scene");
-      if (!sceneName) {
-        document.getElementById("detectedItems").textContent =
-          "Error: Scene name not provided in URL.";
-        throw new Error("Scene name is required");
-      }
+  <script>
+    const output = document.getElementById("output");
+    const params = new URLSearchParams(window.location.search);
+    const scene = params.get("scene");
 
-      // Fetch detected items for the specific scene
-      fetch(`/detected-items?scene=${encodeURIComponent(sceneName)}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const detectedItems = data.detected_items || [];
-          const container = document.getElementById("detectedItems");
-          console.log("Detected items:", detectedItems); // Debug log
-
-          if (detectedItems.length === 0) {
-            container.textContent = "No detected items found.";
-            return;
-          }
-
-          // Parse detected items to extract product name and count
-          const itemCounts = detectedItems.map((item) => {
-            const [name, count] = item.trim().split(/\s+(\d+)$/);
-            return { name: name.trim(), count: parseInt(count) || 1 };
-          });
-          console.log("Parsed item counts:", itemCounts); // Debug log
-
-          // Fetch product list
-          fetch("/products")
-            .then((response) => response.json())
-            .then((products) => {
-              console.log("Products fetched:", products); // Debug log
-              const table = document.createElement("table");
-              const headerRow = document.createElement("tr");
-              ["Name", "Image", "Number of Instances", "Price"].forEach(
-                (text) => {
-                  const th = document.createElement("th");
-                  th.textContent = text;
-                  headerRow.appendChild(th);
-                }
-              );
-              table.appendChild(headerRow);
-
-              let totalPrice = 0; // Variable to track the sum of prices
-
-              itemCounts.forEach((item) => {
-                const lowerItem = item.name.toLowerCase().trim();
-                console.log(`Processing item: ${lowerItem}`); // Debug log
-
-                // Match only by name
-                const matchedProduct = products.find(
-                  (p) => p.name.toLowerCase().trim() === lowerItem
-                );
-                console.log(
-                  `Matched product for ${lowerItem}:`,
-                  matchedProduct
-                ); // Debug log
-
-                const row = document.createElement("tr");
-
-                // Name column
-                const nameCell = document.createElement("td");
-                nameCell.textContent = matchedProduct
-                  ? matchedProduct.name
-                  : item.name;
-                row.appendChild(nameCell);
-
-                // Image column
-                const imageCell = document.createElement("td");
-                if (matchedProduct) {
-                  const img = document.createElement("img");
-                  img.src = matchedProduct.url;
-                  img.alt = matchedProduct.name;
-                  imageCell.appendChild(img);
-                } else {
-                  imageCell.textContent = "No image available";
-                }
-                row.appendChild(imageCell);
-
-                // Number of Instances column
-                const countCell = document.createElement("td");
-                countCell.textContent = item.count;
-                row.appendChild(countCell);
-
-                // Price column
-                const priceCell = document.createElement("td");
-                if (matchedProduct) {
-                  const price = Number(matchedProduct.price) * item.count;
-                  priceCell.textContent = price.toLocaleString();
-                  totalPrice += price; // Add to total considering the count
-                } else {
-                  priceCell.textContent = "Not found";
-                }
-                row.appendChild(priceCell);
-
-                table.appendChild(row); // Add row immediately
-              });
-
-              // Add a final row for the total price
-              const totalRow = document.createElement("tr");
-              totalRow.className = "total-row"; // Apply highlighting style
-
-              const totalNameCell = document.createElement("td");
-              totalNameCell.textContent = "Total Price";
-              totalRow.appendChild(totalNameCell);
-
-              const totalImageCell = document.createElement("td");
-              totalImageCell.textContent = ""; // Empty cell for image column
-              totalRow.appendChild(totalImageCell);
-
-              const totalCountCell = document.createElement("td");
-              totalCountCell.textContent = ""; // Empty cell for count column
-              totalRow.appendChild(totalCountCell);
-
-              const totalPriceCell = document.createElement("td");
-              totalPriceCell.textContent = totalPrice.toLocaleString(); // Display total price
-              totalRow.appendChild(totalPriceCell);
-
-              table.appendChild(totalRow); // Add total row to table
-
-              container.innerHTML = ""; // Clear container
-              container.appendChild(table); // Add table once all rows are built
-            })
-            .catch((err) => {
-              console.error("Error loading products:", err);
-              container.textContent = "Error loading product details.";
-            });
-        })
-        .catch((err) => {
-          console.error("Error loading detected items:", err);
-          document.getElementById("detectedItems").textContent =
-            "Error loading detected items.";
-        });
-      // In your frontend JavaScript (e.g., in index.html or a separate JS file)
-      document
-        .getElementById("categoryForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault(); // Prevent default form submission
-          const formData = new FormData(this);
-          fetch("/add-category", {
-            method: "POST",
-            body: formData,
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.error) {
-                console.error("Error:", data.error);
-                alert("Error: " + data.error);
-                return;
-              }
-              // Use the sceneName returned from the server instead of categoryName
-              if (data.sceneName) {
-                window.location.href = `/category_result.html?scene=${encodeURIComponent(
-                  data.sceneName
-                )}`;
-              } else {
-                alert(
-                  "Category added successfully, but scene name not returned"
-                );
-              }
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-              alert("Failed to add category");
-            });
-        });
-    </script>
-  </body>
+    if (scene) {
+      output.textContent = "Scene name received: " + scene;
+    } else {
+      output.textContent = "Scene name was NOT provided in the URL.";
+    }
+  </script>
+</body>
 </html>

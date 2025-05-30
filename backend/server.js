@@ -119,7 +119,6 @@ const categoryStorage = multer.diskStorage({
 const categoryUpload = multer({ storage: categoryStorage });
 
 // Route to handle adding a new category and running product recognition
-// Route to handle adding a new category and running product recognition
 app.post(
   "/add-category",
   categoryUpload.single("categoryImage"),
@@ -130,7 +129,7 @@ app.post(
       return res.status(400).json({ error: "No file uploaded" });
     }
     const fileName = req.file.filename;
-    const baseName = path.parse(fileName).name;
+    const baseName = path.parse(fileName).name; // This will be used as sceneName
     const savedFilePath = `/images/scenes/${fileName}`;
     console.log(`File saved at: ${savedFilePath}`);
 
@@ -165,13 +164,14 @@ app.post(
             .trim()
             .split("\n")
             .filter((item) => item.trim() !== "");
-          // Return success with the baseName for proper redirection
-          res.json({ success: true, sceneName: baseName });
+          // Redirect to category_result.html with sceneName as query parameter
+          res.redirect(`/category_result.html?scene=${encodeURIComponent(baseName)}`);
         });
       }
     );
   }
 );
+
 // Route to fetch detected items for a specific scene
 app.get("/detected-items", (req, res) => {
   const sceneName = req.query.scene;

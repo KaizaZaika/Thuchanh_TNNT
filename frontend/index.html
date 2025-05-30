@@ -135,27 +135,7 @@
               <input type="submit" value="Add Category" class="btn" />
             </form>
           </div>
-          <script>
-            document
-              .querySelector(".category-form")
-              .addEventListener("submit", function (e) {
-                e.preventDefault();
-                const form = e.target;
-                const formData = new FormData(form);
 
-                fetch("http://localhost:3200/add-category", {
-                  method: "POST",
-                  body: formData,
-                })
-                  .then((res) => res.json())
-                  .then((data) => {
-                    // Save result to localStorage and redirect
-                    localStorage.setItem("categoryResult", data.result);
-                    window.location.href = "category_result.html";
-                  })
-                  .catch((err) => alert("Error: " + err));
-              });
-          </script>
           <div id="manage-products" class="tab-content">
             <h3>Manage Products</h3>
             <p>Here you can manage your products (e.g., edit or delete).</p>
@@ -259,30 +239,38 @@
     <script>
       // Fetch products from the backend
       fetch("http://localhost:3200/products")
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to fetch products");
+          return response.json();
+        })
         .then((products) => {
           const container = document.getElementById("product-container");
-          container.innerHTML = ""; // Clear any existing content
+          container.innerHTML = "";
           products.forEach((product) => {
             const productHTML = `
-              <div class="swiper-slide box">
-                <img src="${product.url}" alt="${product.name}" onerror="this.src='/images/default.png';">
-                <h3>${product.name}</h3>
-                <div class="price">$${product.price}</div>
-                <div class="stars">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star-half-alt"></i>
-                </div>
-                <a href="#" class="btn">add to cart</a>
-              </div>
-            `;
+        <div class="swiper-slide box">
+          <img src="${product.url}" alt="${product.name}" onerror="this.src='/images/default.png';">
+          <h3>${product.name}</h3>
+          <div class="price">$${product.price}</div>
+          <div class="stars">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+          </div>
+          <a href="#" class="btn">add to cart</a>
+        </div>
+      `;
             container.innerHTML += productHTML;
           });
         })
-        .catch((error) => console.error("Error fetching products:", error));
+        .catch((err) => {
+          console.error("Error fetching products:", err);
+          // Optionally show a user-friendly error instead of throwing HTML
+          const container = document.getElementById("product-container");
+          container.innerHTML = `<p style="color:red;">Unable to load products at the moment.</p>`;
+        });
     </script>
     <!-- products section ends -->
 

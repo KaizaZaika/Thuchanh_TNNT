@@ -95,7 +95,7 @@ function closePopup() {
   popup.classList.add("hidden");
 }
 
-// Intercept form submissions for "Add Product" and "Add Category"
+// Intercept form submissions
 document.querySelectorAll("form").forEach((form) => {
   form.addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent default form submission
@@ -111,13 +111,34 @@ document.querySelectorAll("form").forEach((form) => {
         if (!response.ok) {
           throw new Error("Failed to submit form");
         }
-        return response.text();
+        // Check if the response is a redirect
+        if (response.redirected) {
+          // Follow the server's redirect URL
+          window.location.href = response.url;
+        } else {
+          return response.text();
+        }
       })
       .then((message) => {
-        showPopup(message); // Show popup with the server response
+        if (actionUrl.includes("add-product")) {
+          // Show popup for "Add Product" form
+          showPopup(message);
+        } else if (actionUrl.includes("add-category")) {
+          // No need for manual redirect; handled by response.redirected
+          console.log("Add category successful:", message);
+        } else {
+          // For other forms, log the response
+          console.log("Form submitted successfully:", message);
+        }
       })
       .catch((error) => {
-        showPopup("An error occurred: " + error.message);
+        if (actionUrl.includes("add-product")) {
+          // Show popup for "Add Product" form on error
+          showPopup("An error occurred: " + error.message);
+        } else {
+          // Log error for other forms, including "Add Category"
+          console.error("Error submitting form:", error);
+        }
       });
   });
 });
