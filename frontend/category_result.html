@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Category Result</title>
+  <title>Hóa đơn thanh toán</title>
   <style>
     table {
       width: 80%;
@@ -33,16 +33,16 @@
   </style>
 </head>
 <body>
-  <h1>Scene Name Test</h1>
+  
   <p id="scene-output">Loading scene...</p>
-  <h2>Detected Items</h2>
+  <h2>Hóa đơn thanh toán lúc <span id="getDateTime"></span></h2>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Image</th>
-        <th>Count</th>
-        <th>Price</th>
+        <th>Tên hàng</th>
+        <th>Hình ảnh</th>
+        <th>Số lượng</th>
+        <th>Thành tiền</th>
       </tr>
     </thead>
     <tbody id="items-output">
@@ -110,7 +110,7 @@
               const totalRow = document.createElement("tr");
               totalRow.className = "total-row";
               totalRow.innerHTML = `
-                <td colspan="3">Total Price</td>
+                <td colspan="3">Tổng tiền phải trả</td>
                 <td>${totalPrice}</td>
               `;
               itemsOutput.appendChild(totalRow);
@@ -126,6 +126,11 @@
       sceneOutput.textContent = "Scene name was NOT provided in the URL.";
       itemsOutput.innerHTML = `<tr><td colspan="4">No items available.</td></tr>`;
     }
+
+    // Display current date and time
+    var date = new Date();
+	  var current_time =  date.getFullYear()+"-"+(date.getMonth()+1)+"-"+ date.getDate() + "-"+ date.getHours()+"-"+date.getMinutes();
+	  document.getElementById("getDateTime").innerHTML = current_time;
   </script>
 </body>
 </html>
