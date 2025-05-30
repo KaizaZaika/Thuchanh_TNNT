@@ -100,8 +100,18 @@ document.querySelectorAll("form").forEach((form) => {
   form.addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent default form submission
 
-    const formData = new FormData(this);
     const actionUrl = this.action;
+
+    // ✅ Inject date-time for "add-category" form only
+    if (actionUrl.includes("add-category")) {
+      const now = new Date();
+      const pad = (n) => n.toString().padStart(2, "0");
+      const formatted = `${now.getFullYear()}_${pad(now.getDate())}_${pad(now.getMonth() + 1)}_${pad(now.getHours())}_${pad(now.getMinutes())}_${pad(now.getSeconds())}`;
+      const input = form.querySelector("input[name='categoryName']");
+      if (input) input.value = formatted;
+    }
+
+    const formData = new FormData(this);
 
     fetch(actionUrl, {
       method: "POST",
