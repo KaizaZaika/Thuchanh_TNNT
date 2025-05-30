@@ -26,7 +26,7 @@ from os import listdir
 import warnings
 warnings.filterwarnings("ignore")
 
-from utils.visualization import visualize_detections, print_detections
+from utils.visualization import visualize_detections, print_detections, create_model_counter_dict
 from utils.matchers import find_matcher_matrix
 from utils.bbox_filtering import find_bboxes
 
@@ -153,7 +153,16 @@ matcher_matrix = find_matcher_matrix(im_scene_list, im_model_list, K=15, peaks_k
 # In[ ]:
 
 
-
+def export_detections_to_txt(exported_dictionary, scene_name, results_folder):
+    """Export detected items to a text file in the specified format."""
+    output_filename = f"detection_at_{scene_name}.txt"
+    output_path = os.path.join(results_folder, output_filename)
+    
+    with open(output_path, 'w') as f:
+        for product, count in exported_dictionary.items():
+            f.write(f"{product} {count}\n")
+    
+    print(f"Detections exported to: {output_path}")
 
 
 # In[61]:
@@ -184,48 +193,10 @@ for i in range(len(im_scene_list)):
     plt.close(fig)
     
     print_detections(bbox_props)
-    for bbox in bbox_props:
-        if 'model' in bbox:  # Use 'model' key to identify the product
-            product_name = bbox["model"]
-            # Create a unique identifier for the product instance (e.g., product_name + position)
-            product_id = f"{product_name}_{bbox.get('x', 0)}_{bbox.get('y', 0)}"
-            
-            if product_id not in processed_products:  # Only process if not already counted
-                print(f"Detected product: {product_name}")
-                product_price = fetch_product_price(product_name)  # Fetch price from database
-                print(f"Price fetched: {product_price}")
-                
-                if product_price > 0:  # Only add valid prices
-                    scene_total += product_price
-                    processed_products.add(product_id)  # Mark this product instance as processed
-                    detected_items.append({
-                        "scene": scene_name,
-                        "product": product_name,
-                        "price": product_price,
-                        "bbox": bbox  # Include bounding box details if needed
-                    })
-                else:
-                    a = 1
-                    #print(f"Warning: Invalid price for product '{product_name}' in scene '{scene_name}'")
-            else:
-                a = 1
-                #print(f"Skipped duplicate product: {product_name} at position ({bbox.get('x', 0)}, {bbox.get('y', 0)})")
-        else:
-            print(f"Warning: 'model' key missing in bbox: {bbox}")
-    
-    grand_total += scene_total  # Add scene total to grand total
-    print(f"Total price for scene '{scene_name}': {scene_total:.2f}")
+    exported_dictionary = create_model_counter_dict(bbox_props)
     print(f"Export successful: {output_path}")
+    export_detections_to_txt(exported_dictionary, scene_name, results_folder)
 
-# Export detected items to a JSON file
-# Export detected items to a TXT file
-txt_file = results_folder + "detected_items.txt"
-with open(txt_file, "w") as f:
-    for item in detected_items:
-        #f.write(f"Product: {item['product']}\n")
-        #f.write(f"Price: {item['price']:.2f}\n")
-        f.write(f"{item['product']}\n")
-        f.write("\n")
 
-print(f"Detected items exported to {txt_file}")
-print(f"Grand total price for all scenes: ${grand_total:.2f}")
+
+

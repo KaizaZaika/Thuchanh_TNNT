@@ -20,6 +20,7 @@ app.use("/images/scenes", express.static(path.join(__dirname, "images/scenes")))
 
 // Serve static files from backend/images
 app.use('/images', express.static(path.join(__dirname, 'images')));
+
 // Initialize SQLite database
 const db = new sqlite3.Database("./products.db");
 
@@ -67,7 +68,7 @@ const productStorage = multer.diskStorage({
   filename: (req, file, cb) => {
     const { category, name, brand } = req.body;
     const extension = path.extname(file.originalname);
-    const uniqueName = `${category}_${name}_${brand}${extension}`;
+    const uniqueName = `${category}_${brand}_${name}${extension}`;
     cb(null, uniqueName);
   },
 });
@@ -127,7 +128,7 @@ app.post("/add-category", categoryUpload.single("categoryImage"), (req, res) => 
       return res.status(500).json({ error: "Error running product recognition" });
     }
     console.log(`Python script output: ${stdout}`);
-    const txtFilePath = path.join(__dirname, "images", "results", "detected_items.txt");
+    const txtFilePath = path.join(__dirname, "images", "results", `detection_at_${fileName}.txt`);
     fs.readFile(txtFilePath, "utf8", (readErr, data) => {
       if (readErr) {
         console.error(`Error reading detected items file: ${readErr.message}`);
@@ -140,9 +141,13 @@ app.post("/add-category", categoryUpload.single("categoryImage"), (req, res) => 
   });
 });
 
-// New route to fetch detected items from detected_items.txt
+// Route to fetch detected items for a specific scene
 app.get("/detected-items", (req, res) => {
-  const txtFilePath = path.join(__dirname, "images", "results", "detected_items.txt");
+  const sceneName = req.query.scene;
+  if (!sceneName) {
+    return res.status(400).json({ error: "Scene name is required" });
+  }
+  const txtFilePath = path.join(__dirname, "images", "results", `detection_at_${sceneName}.txt`);
   fs.readFile(txtFilePath, "utf8", (err, data) => {
     if (err) {
       console.error(`Error reading detected items file: ${err.message}`);

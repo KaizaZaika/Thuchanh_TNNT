@@ -44,8 +44,16 @@
     </div>
 
     <script>
-      // Fetch detected items
-      fetch("/detected-items")
+      // Get scene name from URL query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const sceneName = urlParams.get('scene');
+      if (!sceneName) {
+        document.getElementById("detectedItems").textContent = "Error: Scene name not provided in URL.";
+        throw new Error("Scene name is required");
+      }
+
+      // Fetch detected items for the specific scene
+      fetch(`/detected-items?scene=${encodeURIComponent(sceneName)}`)
         .then((response) => response.json())
         .then((data) => {
           const detectedItems = data.detected_items || [];
@@ -57,6 +65,13 @@
             return;
           }
 
+          // Parse detected items to extract product name and count
+          const itemCounts = detectedItems.map((item) => {
+            const [name, count] = item.trim().split(/\s+(\d+)$/);
+            return { name: name.trim(), count: parseInt(count) || 1 };
+          });
+          console.log("Parsed item counts:", itemCounts); // Debug log
+
           // Fetch product list
           fetch("/products")
             .then((response) => response.json())
@@ -64,7 +79,7 @@
               console.log("Products fetched:", products); // Debug log
               const table = document.createElement("table");
               const headerRow = document.createElement("tr");
-              ["Name", "Image", "Price"].forEach((text) => {
+              ["Name", "Image", "Number of Instances", "Price"].forEach((text) => {
                 const th = document.createElement("th");
                 th.textContent = text;
                 headerRow.appendChild(th);
@@ -73,8 +88,8 @@
 
               let totalPrice = 0; // Variable to track the sum of prices
 
-              detectedItems.forEach((item) => {
-                const lowerItem = item.toLowerCase().trim();
+              itemCounts.forEach((item) => {
+                const lowerItem = item.name.toLowerCase().trim();
                 console.log(`Processing item: ${lowerItem}`); // Debug log
 
                 // Match only by name
@@ -87,7 +102,7 @@
 
                 // Name column
                 const nameCell = document.createElement("td");
-                nameCell.textContent = matchedProduct ? matchedProduct.name : item;
+                nameCell.textContent = matchedProduct ? matchedProduct.name : item.name;
                 row.appendChild(nameCell);
 
                 // Image column
@@ -102,12 +117,17 @@
                 }
                 row.appendChild(imageCell);
 
+                // Number of Instances column
+                const countCell = document.createElement("td");
+                countCell.textContent = item.count;
+                row.appendChild(countCell);
+
                 // Price column
                 const priceCell = document.createElement("td");
                 if (matchedProduct) {
-                  const price = Number(matchedProduct.price);
+                  const price = Number(matchedProduct.price) * item.count;
                   priceCell.textContent = price.toLocaleString();
-                  totalPrice += price; // Add to total if there's a matched product
+                  totalPrice += price; // Add to total considering the count
                 } else {
                   priceCell.textContent = "Not found";
                 }
@@ -127,6 +147,10 @@
               const totalImageCell = document.createElement("td");
               totalImageCell.textContent = ""; // Empty cell for image column
               totalRow.appendChild(totalImageCell);
+
+              const totalCountCell = document.createElement("td");
+              totalCountCell.textContent = ""; // Empty cell for count column
+              totalRow.appendChild(totalCountCell);
 
               const totalPriceCell = document.createElement("td");
               totalPriceCell.textContent = totalPrice.toLocaleString(); // Display total price

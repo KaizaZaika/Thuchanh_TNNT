@@ -250,4 +250,32 @@ def print_detections(bbox_props_list):
             for k, pos in enumerate(positions):
                 print(
                     f"\t\tInstance {k + 1}: (position: ({pos['c'][0]:.0f}, {pos['c'][1]:.0f}), width: {pos['w']:.0f}px, height: {pos['h']:.0f}px)")
+def create_model_counter_dict(bbox_props_list):
+    '''
+    Create a dictionary storing model names and their instance counts.
+
+    Parameters
+    ----------
+        bbox_props_list : list of dict
+            List containing the properties of the bounding boxes of the scene image
+
+    Returns
+    -------
+        dict
+            Dictionary with model names as keys and their instance counts as values
+    '''
+    model_names_find = np.unique(
+        np.array([props['model'] for props in bbox_props_list]))
     
+    model_counter_dict = {}
+    
+    for model_name in model_names_find:
+        counter = 0
+        for bbox_props in bbox_props_list:
+            if bbox_props['model'] == model_name and bbox_props['valid_bbox']:
+                counter += 1
+        if counter > 0:
+            model_name = model_name.replace('\n', ' ')
+            model_counter_dict[model_name] = counter
+            
+    return model_counter_dict  
