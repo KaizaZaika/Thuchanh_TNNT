@@ -23,6 +23,10 @@ app.use(
   "/images/scenes",
   express.static(path.join(__dirname, "images/scenes"))
 );
+app.use(
+  "/images/results",
+  express.static(path.join(__dirname, "images/results"))
+);
 
 // Serve static files from backend/images
 app.use("/images", express.static(path.join(__dirname, "images")));

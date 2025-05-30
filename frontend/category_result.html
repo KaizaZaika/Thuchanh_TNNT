@@ -30,12 +30,19 @@
       font-weight: bold;
       background-color: #e0e0e0;
     }
+    #recognized-image {
+      display: block;
+      margin: 10px auto;
+      max-width: 300px;
+      height: auto;
+    }
   </style>
 </head>
 <body>
-  
   <p id="scene-output">Loading scene...</p>
   <h2>Hóa đơn thanh toán lúc <span id="getDateTime"></span></h2>
+  <img id="recognized-image" alt="Recognized Image" style="display: none;">
+  <h2>Danh sách sản phẩm</h2>
   <table>
     <thead>
       <tr>
@@ -53,11 +60,21 @@
   <script>
     const sceneOutput = document.getElementById("scene-output");
     const itemsOutput = document.getElementById("items-output");
+    const recognizedImage = document.getElementById("recognized-image");
     const params = new URLSearchParams(window.location.search);
     const scene = params.get("scene");
 
     if (scene) {
       sceneOutput.textContent = "Scene name received: " + scene;
+
+      // Set recognized image source
+      const imageUrl = `/images/results/found_${encodeURIComponent(scene)}.jpg`;
+      recognizedImage.src = imageUrl;
+      recognizedImage.style.display = "block"; // Show image
+      recognizedImage.onerror = () => {
+        recognizedImage.style.display = "none"; // Hide if image fails to load
+        sceneOutput.textContent += " (Error: Recognized image not found)";
+      };
 
       // Fetch detected items
       fetch(`/detected-items?scene=${encodeURIComponent(scene)}`)
@@ -124,13 +141,14 @@
         });
     } else {
       sceneOutput.textContent = "Scene name was NOT provided in the URL.";
-      itemsOutput.innerHTML = `<tr><td colspan="4">No items available.</td></tr>`;
+      itemsOutput.innerHTML = '<tr><td colspan="4">No items available.</td></tr>';
+      recognizedImage.style.display = "none";
     }
 
     // Display current date and time
     var date = new Date();
-	  var current_time =  date.getFullYear()+"-"+(date.getMonth()+1)+"-"+ date.getDate() + "-"+ date.getHours()+"-"+date.getMinutes();
-	  document.getElementById("getDateTime").innerHTML = current_time;
+    var current_time = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes();
+    document.getElementById("getDateTime").innerHTML = current_time;
   </script>
 </body>
 </html>
