@@ -118,6 +118,7 @@ app.post("/add-category", categoryUpload.single("categoryImage"), (req, res) => 
     return res.status(400).json({ error: "No file uploaded" });
   }
   const fileName = req.file.filename;
+  const baseName = path.parse(fileName).name;
   const savedFilePath = `/images/scenes/${fileName}`;
   console.log(`File saved at: ${savedFilePath}`);
 
@@ -128,7 +129,7 @@ app.post("/add-category", categoryUpload.single("categoryImage"), (req, res) => 
       return res.status(500).json({ error: "Error running product recognition" });
     }
     console.log(`Python script output: ${stdout}`);
-    const txtFilePath = path.join(__dirname, "images", "results", `detection_at_${fileName}.txt`);
+    const txtFilePath = path.join(__dirname, "images", "results", `detection_at_${baseName}.txt`);
     fs.readFile(txtFilePath, "utf8", (readErr, data) => {
       if (readErr) {
         console.error(`Error reading detected items file: ${readErr.message}`);
@@ -136,7 +137,7 @@ app.post("/add-category", categoryUpload.single("categoryImage"), (req, res) => 
       }
       console.log(`Detected items from file: ${data}`);
       const items = data.trim().split('\n').filter(item => item.trim() !== '');
-      res.json({ detected_items: items });
+      res.json({ success: true });
     });
   });
 });

@@ -155,7 +155,8 @@ matcher_matrix = find_matcher_matrix(im_scene_list, im_model_list, K=15, peaks_k
 
 def export_detections_to_txt(exported_dictionary, scene_name, results_folder):
     """Export detected items to a text file in the specified format."""
-    output_filename = f"detection_at_{scene_name}.txt"
+    scene_base = os.path.splitext(scene_name)[0]  # Strip .jpg/.png
+    output_filename = f"detection_at_{scene_base}.txt"
     output_path = os.path.join(results_folder, output_filename)
     
     with open(output_path, 'w') as f:

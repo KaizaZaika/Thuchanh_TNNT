@@ -46,9 +46,10 @@
     <script>
       // Get scene name from URL query parameter
       const urlParams = new URLSearchParams(window.location.search);
-      const sceneName = urlParams.get('scene');
+      const sceneName = urlParams.get("scene");
       if (!sceneName) {
-        document.getElementById("detectedItems").textContent = "Error: Scene name not provided in URL.";
+        document.getElementById("detectedItems").textContent =
+          "Error: Scene name not provided in URL.";
         throw new Error("Scene name is required");
       }
 
@@ -79,11 +80,13 @@
               console.log("Products fetched:", products); // Debug log
               const table = document.createElement("table");
               const headerRow = document.createElement("tr");
-              ["Name", "Image", "Number of Instances", "Price"].forEach((text) => {
-                const th = document.createElement("th");
-                th.textContent = text;
-                headerRow.appendChild(th);
-              });
+              ["Name", "Image", "Number of Instances", "Price"].forEach(
+                (text) => {
+                  const th = document.createElement("th");
+                  th.textContent = text;
+                  headerRow.appendChild(th);
+                }
+              );
               table.appendChild(headerRow);
 
               let totalPrice = 0; // Variable to track the sum of prices
@@ -96,13 +99,18 @@
                 const matchedProduct = products.find(
                   (p) => p.name.toLowerCase().trim() === lowerItem
                 );
-                console.log(`Matched product for ${lowerItem}:`, matchedProduct); // Debug log
+                console.log(
+                  `Matched product for ${lowerItem}:`,
+                  matchedProduct
+                ); // Debug log
 
                 const row = document.createElement("tr");
 
                 // Name column
                 const nameCell = document.createElement("td");
-                nameCell.textContent = matchedProduct ? matchedProduct.name : item.name;
+                nameCell.textContent = matchedProduct
+                  ? matchedProduct.name
+                  : item.name;
                 row.appendChild(nameCell);
 
                 // Image column
@@ -170,6 +178,35 @@
           console.error("Error loading detected items:", err);
           document.getElementById("detectedItems").textContent =
             "Error loading detected items.";
+        });
+      // In your frontend JavaScript (e.g., in index.html or a separate JS file)
+      document
+        .getElementById("categoryForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent default form submission
+          const formData = new FormData(this);
+          fetch("/add-category", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.error) {
+                console.error("Error:", data.error);
+                alert("Error: " + data.error);
+                return;
+              }
+              // Get categoryName from form data
+              const categoryName = formData.get("categoryName");
+              // Redirect to category_result.html with scene query parameter
+              window.location.href = `/category_result.html?scene=${encodeURIComponent(
+                categoryName
+              )}`;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Failed to add category");
+            });
         });
     </script>
   </body>
