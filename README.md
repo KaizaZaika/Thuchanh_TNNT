@@ -8,6 +8,50 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 - Lê Hồng Anh
 - Đỗ Việt Dũng
 
+## 📝 Mô Tả Dự Án
+
+### Nhiệm Vụ Chính
+1. **Nhận Diện Sản Phẩm Tự Động**
+   - Phát hiện và nhận dạng các sản phẩm từ hình ảnh đầu vào
+   - Phân loại sản phẩm vào các danh mục được định nghĩa trước
+   - Tính toán tổng giá trị đơn hàng tự động
+
+2. **Xử Lý Hình Ảnh**
+   - Tiền xử lý hình ảnh để tối ưu hóa độ chính xác nhận dạng
+   - Xử lý nhiều sản phẩm trong cùng một khung hình
+   - Hỗ trợ nhiều định dạng ảnh đầu vào
+
+3. **Giao Diện Người Dùng**
+   - Thiết kế giao diện thân thiện, dễ sử dụng
+   - Hiển thị kết quả nhận dạng trực quan
+   - Hỗ trợ tải lên nhiều hình ảnh cùng lúc
+
+### Các Trường Hợp Sử Dụng Chính
+
+#### UC1: Quét Và Nhận Diện Sản Phẩm
+- **Tác nhân**: Người dùng/Nhân viên bán hàng
+- **Mục tiêu**: Nhận diện sản phẩm từ hình ảnh
+- **Luồng thực hiện**:
+  1. Người dùng tải lên hình ảnh sản phẩm
+  2. Hệ thống xử lý và nhận diện sản phẩm
+  3. Hiển thị thông tin sản phẩm và giá cả
+
+#### UC2: Tính Toán Tổng Giá Trị Đơn Hàng
+- **Tác nhân**: Người dùng/Thu ngân
+- **Mục tiêu**: Tính tổng giá trị các sản phẩm đã quét
+- **Luồng thực hiện**:
+  1. Hệ thống nhận diện từng sản phẩm
+  2. Tự động cộng dồn giá trị
+  3. Hiển thị tổng tiền và chi tiết đơn hàng
+
+#### UC3: Quản Lý Danh Mục Sản Phẩm
+- **Tác nhân**: Quản trị viên
+- **Mục tiêu**: Thêm/sửa/xóa thông tin sản phẩm
+- **Luồng thực hiện**:
+  1. Đăng nhập với quyền quản trị
+  2. Thực hiện các thao tác quản lý
+  3. Lưu thay đổi vào cơ sở dữ liệu
+
 ## 🚀 Liên kết
 
 - **Product Detection**: Automatically detects products in images using computer vision
@@ -85,9 +129,7 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 - npm or yarn
 
 
-## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
