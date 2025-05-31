@@ -1,30 +1,22 @@
+version: '3.8'
+
 services:
-  backend:
-    build: ./backend
-    container_name: backend
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3200:3200"
     volumes:
-      - ./backend/uploads:/app/uploads
-      - ./backend/weights:/app/weights
-      - ./backend/images:/app/images
-      - ./backend/db:/app/db
-      - ./data:/app/data
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
+      - ./product_recognition.py:/app/product_recognition.py
+      - ./yolov5:/app/yolov5  # Assuming YOLOv5 is used for object detection
     environment:
       - NODE_ENV=production
-      - PORT=3200
     restart: unless-stopped
-    networks:
-      - app-network
-
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    restart: unless-stopped
+    working_dir: /app/backend
+    command: sh -c "npm install && node init-db.js && node server.js"
     networks:
       - app-network
 
