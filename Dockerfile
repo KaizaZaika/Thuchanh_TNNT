@@ -1,34 +1,63 @@
-# Use Node.js as the base image
-FROM node:16
+FROM node:18-bullseye-slim
 
-# Install Python and required dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
-    python3-opencv \
+    python3-venv \
+    g++ \
+    make \
+    python2 \
+    sqlite3 \
+    libsqlite3-dev \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
+
+# Set Python 2 as default (required for node-gyp)
+RUN ln -sf /usr/bin/python2 /usr/bin/python
+
+# Create and activate virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY backend/package*.json ./backend/
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Install Node.js dependencies
+COPY backend/package*.json ./backend/
 WORKDIR /app/backend
+
+# Install SQLite3 v4.2.0 with specific build flags
+RUN npm install sqlite3@4.2.0 --build-from-source --sqlite=/usr --sqlite_libname=sqlite3 --build-from-source
+
+# Install other dependencies
 RUN npm install
 
-# Install Python dependencies for product recognition
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+# Go back to app root
+WORKDIR /app
 
 # Copy application code
-WORKDIR /app
 COPY . .
 
-# Expose the port the app runs on
+# Set working directory for the app
+WORKDIR /app/backend
+
+# Set environment to production
+ENV NODE_ENV=production
+
+# Expose the app port
 EXPOSE 3200
 
-# Command to run the application
-CMD ["node", "backend/server.js"]
+# Start the application
+CMD ["sh", "-c", "node init-db.js && node server.js"]

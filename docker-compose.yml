@@ -8,17 +8,32 @@ services:
     ports:
       - "3200:3200"
     volumes:
-      - ./backend:/app/backend
+      # Mount only specific directories, not the entire backend folder
+      - ./backend/routes:/app/backend/routes
+      - ./backend/controllers:/app/backend/controllers
+      - ./backend/models:/app/backend/models
+      - ./backend/utils:/app/backend/utils
       - ./frontend:/app/frontend
       - ./product_recognition.py:/app/product_recognition.py
-      - ./yolov5:/app/yolov5  # Assuming YOLOv5 is used for object detection
+      - ./yolov5:/app/yolov5
+      # Add a volume for SQLite database
+      - db-data:/app/backend/db
     environment:
       - NODE_ENV=production
     restart: unless-stopped
     working_dir: /app/backend
-    command: sh -c "npm install && node init-db.js && node server.js"
+    command: sh -c "node init-db.js && node server.js"
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3200/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  db-data:
+    driver: local
 
 networks:
   app-network:

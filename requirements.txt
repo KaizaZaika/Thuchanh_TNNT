@@ -1,7 +1,7 @@
 numpy
-opencv-python
-opencv-python-headless
-torch
-torchvision
-Pillow
+opencv-contrib-python  # For SIFT and other non-free features
 matplotlib
+psutil
+Pillow
+shapely  # Required for geometric operations and polygon handling
+scipy  # Required for signal processing and scientific computing
