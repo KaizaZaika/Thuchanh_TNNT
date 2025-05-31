@@ -64,7 +64,7 @@
           <!-- Tab Content -->
           <div id="add-product" class="tab-content active">
             <form
-              action="http://localhost:3200/add-product"
+              action="/api/add-product"
               method="POST"
               enctype="multipart/form-data"
               class="product-form"
@@ -112,7 +112,7 @@
 
           <div id="add-category" class="tab-content">
             <form
-              action="http://localhost:3200/add-category"
+              action="/api/add-category"
               method="POST"
               enctype="multipart/form-data"
               class="category-form"
@@ -254,7 +254,7 @@
     </section>
     <script>
       // Fetch products from the backend
-      fetch("http://localhost:3200/products")
+      fetch("/api/products")
         .then((response) => {
           if (!response.ok) throw new Error("Failed to fetch products");
           return response.json();

@@ -1,0 +1,12 @@
+.git
+.gitignore
+*.md
+.DS_Store
+.vscode
+.idea
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.ipynb_checkpoints

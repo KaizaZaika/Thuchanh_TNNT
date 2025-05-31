@@ -4,57 +4,69 @@ const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
 const { exec } = require("child_process");
-const cors = require("cors");
+const cors = require('cors');
 const app = express();
 const PORT = 3200;
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Log all requests for debugging
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
 // Middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors()); // Enable CORS for frontend requests
 
-// Serve the images directory for products and categories
-app.use(
-  "/images/models",
-  express.static(path.join(__dirname, "images/models"))
-);
-app.use(
-  "/images/scenes",
-  express.static(path.join(__dirname, "images/scenes"))
-);
-app.use(
-  "/images/results",
-  express.static(path.join(__dirname, "images/results"))
-);
+// Debug endpoint to check file paths
+app.get('/debug/paths', (req, res) => {
+  res.json({
+    __dirname: __dirname,
+    modelsPath: path.join(__dirname, 'images/models'),
+    filesInModels: fs.existsSync(path.join(__dirname, 'images/models')) 
+      ? fs.readdirSync(path.join(__dirname, 'images/models')) 
+      : 'Directory does not exist'
+  });
+});
 
-// Serve static files from backend/images
-app.use("/images", express.static(path.join(__dirname, "images")));
+// Serve static files from the 'public' directory (if any)
+app.use('/public', express.static('public'));
+
+// Serve static files from the images directory with proper headers
+const staticOptions = {
+  index: false,
+  setHeaders: (res, path) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.set('Cache-Control', 'public, max-age=2592000'); // 30 days
+  }
+};
+
+// Serve all images from the images directory
+app.use('/images', express.static(path.join(__dirname, 'images'), staticOptions));
+
+// Get all products
+app.get('/api/products', (req, res) => {
+  const query = 'SELECT * FROM products';
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching products:', err);
+      return res.status(500).json({ error: 'Failed to fetch products' });
+    }
+    res.json(rows);
+  });
+});
 
 // Initialize SQLite database
-const db = new sqlite3.Database("./products.db", (err) => {
-  if (err) {
-    console.error("Error connecting to database:", err.message);
-  } else {
-    console.log("Connected to SQLite database");
-    // Create products table if it doesn't exist
-    db.run(`
-      CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        price REAL,
-        category TEXT,
-        brand TEXT,
-        url TEXT
-      )
-    `, (err) => {
-      if (err) {
-        console.error("Error creating products table:", err.message);
-      } else {
-        console.log("Products table ready");
-      }
-    });
-  }
-});
+const db = new sqlite3.Database("./products.db");
 
 // Route to clean up database entries with missing image files
 app.get("/cleanup-database", (req, res) => {
@@ -263,6 +275,10 @@ app.get("/product-details", (req, res) => {
     }
     res.json(row);
   });
+});
+// Serve the index.html file
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
 // Start the server
