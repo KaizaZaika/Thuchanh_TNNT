@@ -44,21 +44,15 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
   2. Tự động cộng dồn giá trị
   3. Hiển thị tổng tiền và chi tiết đơn hàng
 
-#### UC3: Quản Lý Danh Mục Sản Phẩm
-- **Tác nhân**: Quản trị viên
-- **Mục tiêu**: Thêm/sửa/xóa thông tin sản phẩm
-- **Luồng thực hiện**:
-  1. Đăng nhập với quyền quản trị
-  2. Thực hiện các thao tác quản lý
-  3. Lưu thay đổi vào cơ sở dữ liệu
+
 
 ## 🚀 Liên kết
 
-- **Product Detection**: Automatically detects products in images using computer vision
-- **Image Classification**: Classifies products into predefined categories
-- **Web Interface**: User-friendly web interface for uploading and processing images
-- **Database Integration**: Stores product information and detection results
-- **API Endpoints**: RESTful API for integration with other systems
+- **Product Detection**: Tự động phát hiện sản phẩm trong hình ảnh bằng công nghệ thị giác máy tính.
+- **Image Classification**: Phân loại sản phẩm vào các danh mục được xác định trước.
+- **Web Interface**: Giao diện web thân thiện với người dùng để tải lên và xử lý hình ảnh.
+- **Database Integration**: Lưu trữ thông tin sản phẩm và kết quả phát hiện.
+- **API Endpoints**: API RESTful để tích hợp với các hệ thống khác.
 
 ## Công Nghệ Sử Dụng
 
@@ -138,4 +132,3 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 
 ---
 
-Developed with ❤️ by the Bing Chilling Team
