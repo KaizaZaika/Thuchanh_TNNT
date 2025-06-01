@@ -1,11 +1,17 @@
-# frontend/Dockerfile.frontend
+# frontend/Dockerfile
 FROM nginx:alpine
 
-# Xóa cấu hình Nginx mặc định
+# Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Sao chép tệp cấu hình nginx.conf vào container
+# Copy nginx configuration file into container
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Set working directory
+WORKDIR /usr/share/nginx/html
+
+# Copy frontend files
+COPY frontend/ .
 
 EXPOSE 80
 

@@ -67,14 +67,33 @@
     if (scene) {
       sceneOutput.textContent = "Scene name received: " + scene;
 
-      // Set recognized image source
-      const imageUrl = `/images/results/found_${encodeURIComponent(scene)}.jpg`;
-      recognizedImage.src = imageUrl;
-      recognizedImage.style.display = "block"; // Show image
-      recognizedImage.onerror = () => {
-        recognizedImage.style.display = "none"; // Hide if image fails to load
-        sceneOutput.textContent += " (Error: Recognized image not found)";
+      // Set recognized image source - try multiple image formats
+      const imageBase = `/images/results/found_${encodeURIComponent(scene)}`;
+      const imageFormats = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+      
+      let currentFormatIndex = 0;
+      
+      const tryNextFormat = () => {
+        if (currentFormatIndex >= imageFormats.length) {
+          recognizedImage.style.display = "none";
+          sceneOutput.textContent += " (Error: No recognized image found in any format)";
+          return;
+        }
+        
+        const imageUrl = `${imageBase}${imageFormats[currentFormatIndex]}`;
+        recognizedImage.onerror = () => {
+          currentFormatIndex++;
+          tryNextFormat();
+        };
+        
+        recognizedImage.onload = () => {
+          recognizedImage.style.display = "block";
+        };
+        
+        recognizedImage.src = imageUrl;
       };
+      
+      tryNextFormat();
 
       // Fetch detected items
       fetch(`/detected-items?scene=${encodeURIComponent(scene)}`)
@@ -131,6 +150,22 @@
                 <td>${totalPrice}</td>
               `;
               itemsOutput.appendChild(totalRow);
+
+              // Save total price to history if we have a historyId
+              const urlParams = new URLSearchParams(window.location.search);
+              const historyId = urlParams.get('historyId');
+              if (historyId) {
+                fetch(`/api/detection-history/${historyId}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ totalPrice: totalPrice })
+                })
+                .then(response => response.json())
+                .then(data => console.log('History updated:', data))
+                .catch(error => console.error('Error updating history:', error));
+              }
             });
           } else {
             itemsOutput.innerHTML = `<tr><td colspan="4">No items detected.</td></tr>`;

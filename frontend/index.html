@@ -30,8 +30,7 @@
         <a href="#home">home</a>
         <a href="#products">products</a>
         <a href="#categories">categories</a>
-
-        <
+        <a href="history.html" class="history-link">Lịch sử</a>
       </nav>
 
       <div class="icons">
@@ -58,6 +57,9 @@
             </button>
             <button class="tab-link" onclick="openTab(event, 'add-category')">
               Thêm ảnh nhận diện
+            </button>
+            <button class="tab-link" onclick="openTab(event, 'manage-products'); fetchProducts()">
+              Quản lý sản phẩm
             </button>
           </div>
 
@@ -117,7 +119,7 @@
               enctype="multipart/form-data"
               class="category-form"
             >
-              <h3></h3>
+              <h3>Thêm ảnh nhận diện</h3>
               <span>Thời gian hiện tại</span>
               <input
                 type="text"
@@ -126,6 +128,28 @@
                 class="box"
                 readonly
               />
+              <input
+                type="file"
+                name="categoryImage"
+                class="box"
+                accept="image/*"
+                required
+              />
+              <input type="submit" value="Thêm" class="btn" />
+          </div>
+
+          <!-- Quản lý sản phẩm Tab Content -->
+          <div id="manage-products" class="tab-content">
+            <div class="products-management">
+              <h3>Quản lý sản phẩm</h3>
+              <div class="search-box">
+                <input type="text" id="productSearch" placeholder="Tìm kiếm sản phẩm..." onkeyup="filterProducts()" class="box">
+              </div>
+              <div class="products-list" id="productsList">
+                <p>Đang tải sản phẩm...</p>
+              </div>
+            </div>
+          </div>
 
               <script>
                 function updateClock() {
@@ -148,15 +172,6 @@
                 // Run once immediately when page loads
                 document.addEventListener("DOMContentLoaded", updateClock);
               </script>
-
-              <input
-                type="file"
-                name="categoryImage"
-                class="box"
-                accept="image/*"
-                required
-              />
-              <input type="submit" value="Thêm" class="btn" />
             </form>
           </div>
         </div>
@@ -166,57 +181,152 @@
           .tab-container {
             width: 100%;
             margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
           }
 
           .tabs {
             display: flex;
-            border-bottom: 2px solid #ccc;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
           }
 
           .tab-link {
-            padding: 10px 20px;
+            padding: 12px 24px;
             cursor: pointer;
-            background: #f1f1f1;
+            background: none;
             border: none;
-            outline: none;
-            transition: background 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s ease;
+          }
+
+          .tab-link:hover {
+            background: #e9ecef;
           }
 
           .tab-link.active {
-            background: #007bff;
-            color: white;
-            font-weight: bold;
+            background: white;
+            color: #007bff;
+            border-bottom-color: #007bff;
+            font-weight: 600;
           }
 
           .tab-content {
             display: none;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-top: none;
+            padding: 25px;
+            background: white;
+            animation: fadeIn 0.3s ease;
+          }
+          
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
           }
 
           .tab-content.active {
             display: block;
+          }
+          
+          /* Add styles for the products list */
+          .products-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+          }
+          .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+          }
+          .product-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+          }
+          .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+          }
+          .delete-btn {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+          .delete-btn:hover {
+            background: #ff1a1a;
+          }
+          .search-box {
+            margin: 10px 0;
+          }
+          .search-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
           }
         </style>
 
         <!-- Add the following JavaScript for tab functionality -->
         <script>
           function openTab(event, tabId) {
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll(".tab-content");
-            tabContents.forEach((content) =>
-              content.classList.remove("active")
-            );
+            console.log('Opening tab:', tabId);
+            // Hide all tab content
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+              tabContents[i].classList.remove('active');
+              tabContents[i].style.display = 'none';
+            }
 
             // Remove active class from all tab links
-            const tabLinks = document.querySelectorAll(".tab-link");
-            tabLinks.forEach((link) => link.classList.remove("active"));
+            const tabLinks = document.getElementsByClassName('tab-link');
+            for (let i = 0; i < tabLinks.length; i++) {
+              tabLinks[i].classList.remove('active');
+            }
 
-            // Show the selected tab content and set the active class
-            document.getElementById(tabId).classList.add("active");
-            event.currentTarget.classList.add("active");
+            // Show the current tab and add active class to the button that opened the tab
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) {
+              activeTab.classList.add('active');
+              activeTab.style.display = 'block';
+              console.log('Tab displayed:', tabId);
+            } else {
+              console.error('Tab not found:', tabId);
+            }
+            
+            if (event && event.currentTarget) {
+              event.currentTarget.classList.add('active');
+            }
+
+            // If opening manage products tab, refresh the product list
+            if (tabId === 'manage-products') {
+              console.log('Fetching products...');
+              fetchProducts();
+            }
           }
+          
+          // Show the first tab by default
+          document.addEventListener('DOMContentLoaded', function() {
+            // Set first tab as active
+            const firstTab = document.querySelector('.tab-link');
+            const firstTabContent = document.querySelector('.tab-content');
+            if (firstTab && firstTabContent) {
+              firstTab.classList.add('active');
+              firstTabContent.classList.add('active');
+              firstTabContent.style.display = 'block';
+            }
+          });
         </script>
       </div>
 
@@ -386,6 +496,141 @@
     </section>
 
     <!-- footer section ends -->
+
+    <!-- Product Management JavaScript -->
+    <script>
+      async function fetchProducts() {
+        try {
+          console.log('Fetching products from /products...');
+          const response = await fetch('/products');
+          console.log('Response status:', response.status);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error('Không thể tải danh sách sản phẩm: ' + response.status);
+          }
+          
+          const products = await response.json();
+          console.log('Products received:', products);
+          
+          if (!Array.isArray(products)) {
+            console.error('Expected array but received:', typeof products, products);
+            throw new Error('Dữ liệu sản phẩm không hợp lệ');
+          }
+          
+          displayProducts(products);
+        } catch (error) {
+          console.error('Lỗi khi tải sản phẩm:', error);
+          const productsList = document.getElementById('productsList');
+          if (productsList) {
+            productsList.innerHTML = 
+              `<p style="color:red;">Lỗi khi tải danh sách sản phẩm: ${error.message}</p>`;
+          }
+        }
+      }
+
+      function displayProducts(products) {
+        console.log('Displaying products:', products);
+        const productsList = document.getElementById('productsList');
+        
+        if (!productsList) {
+          console.error('Products list container not found!');
+          return;
+        }
+        
+        if (!products || products.length === 0) {
+          console.log('No products to display');
+          productsList.innerHTML = '<p>Không có sản phẩm nào.</p>';
+          return;
+        }
+
+        try {
+          const productHTML = products.map(product => {
+            try {
+              if (!product) {
+                console.error('Undefined product in array');
+                return '';
+              }
+              
+              console.log('Processing product:', product);
+              
+              const name = product.name || 'Không có tên';
+              const price = product.price ? `${product.price} VNĐ` : 'Liên hệ';
+              const category = product.category ? `
+                <div>Loại: ${product.category}</div>` : '';
+              const imageUrl = product.url || 'images/default-product.png';
+              
+              return `
+                <div class="product-item" 
+                     data-name="${name.toLowerCase()}" 
+                     data-category="${product.category ? product.category.toLowerCase() : ''}">
+                  <div class="product-info">
+                    <img src="${imageUrl}" 
+                         alt="${name}" 
+                         class="product-image"
+                         onerror="this.onerror=null; this.src='images/default-product.png'">
+                    <div>
+                      <div><strong>${name}</strong></div>
+                      <div>Giá: ${price}</div>
+                      ${category}
+                    </div>
+                  </div>
+                  <button class="delete-btn" onclick="deleteProduct('${product.id}')">Xóa</button>
+                </div>`;
+            } catch (err) {
+              console.error('Error rendering product:', err, product);
+              return '';
+            }
+          }).join('');
+          
+          productsList.innerHTML = productHTML || '<p>Không thể hiển thị sản phẩm.</p>';
+          console.log('Finished rendering products');
+          
+        } catch (err) {
+          console.error('Error in displayProducts:', err);
+          productsList.innerHTML = `<p style="color:red;">Lỗi khi hiển thị sản phẩm: ${err.message}</p>`;
+        }
+      }
+
+      async function deleteProduct(productId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+          return;
+        }
+        try {
+          const response = await fetch(`/api/products/${productId}`, {
+            method: 'DELETE'
+          });
+          
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Lỗi khi xóa sản phẩm');
+          }
+          
+          alert('Xóa sản phẩm thành công!');
+          fetchProducts(); // Refresh the list
+        } catch (error) {
+          console.error('Lỗi khi xóa sản phẩm:', error);
+          alert('Có lỗi xảy ra khi xóa sản phẩm: ' + error.message);
+        }
+      }
+
+      function filterProducts() {
+        const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+        const products = document.querySelectorAll('.product-item');
+        
+        products.forEach(product => {
+          const name = product.getAttribute('data-name');
+          const category = product.getAttribute('data-category') || '';
+          
+          if (name.includes(searchTerm) || category.includes(searchTerm)) {
+            product.style.display = 'flex';
+          } else {
+            product.style.display = 'none';
+          }
+        });
+      }
+    </script>
 
     <!-- custom javascript section starts -->
 

@@ -84,8 +84,8 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 
 2. Pull Images từ Docker Hub
    ```bash
-   docker pull lha151105/thuchanh_tnnt-frontend:latest
-   docker pull lha151105/thuchanh_tnnt-backend:latest
+   docker pull lha151105/thuchanh_tnnt-frontend
+   docker pull lha151105/thuchanh_tnnt-backend
    ```
 
 3. Khởi tạo hệ thống

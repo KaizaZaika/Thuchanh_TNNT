@@ -40,6 +40,22 @@ const db = new sqlite3.Database("./backend/products.db", (err) => {
         console.error("Server.js: Lỗi kết nối CSDL:", err.message); // LOG 3 (Lỗi khi kết nối)
     } else {
         console.log("Server.js: Kết nối CSDL thành công."); // LOG 4 (Kết nối thành công)
+        // Create detection_history table if it doesn't exist
+        db.run(`
+            CREATE TABLE IF NOT EXISTS detection_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                scene_name TEXT NOT NULL,
+                image_path TEXT NOT NULL,
+                total_price REAL NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `, (err) => {
+            if (err) {
+                console.error("Error creating detection_history table:", err.message);
+            } else {
+                console.log("Detection history table is ready");
+            }
+        });
     }
 });
 
@@ -173,17 +189,71 @@ app.post(
               .json({ error: "Error reading detected items" });
           }
           console.log(`Detected items from file: ${data}`);
+          // Process detected items
           const items = data
             .trim()
             .split("\n")
             .filter((item) => item.trim() !== "");
-          // Redirect to category_result.html with sceneName as query parameter
-          res.redirect(`/category_result.html?scene=${encodeURIComponent(baseName)}`);
+          
+          // For now, we'll set total price to 0 and update it after fetching all product details
+          const detectionImagePath = `/images/results/found_${baseName}.jpg`;
+          const insertQuery = `
+            INSERT INTO detection_history (scene_name, image_path, total_price)
+            VALUES (?, ?, 0)
+            RETURNING id;
+          `;
+          
+          db.get(insertQuery, [baseName, detectionImagePath], (err, row) => {
+            if (err) {
+              console.error("Error saving to detection history:", err.message);
+              return res.redirect(`/category_result.html?scene=${encodeURIComponent(baseName)}`);
+            }
+            
+            const historyId = row.id;
+            // Redirect to category_result with both scene and historyId
+            res.redirect(`/category_result.html?scene=${encodeURIComponent(baseName)}&historyId=${historyId}`);
+          });
         });
       }
     );
   }
 );
+
+// API to update detection history with total price
+app.put('/api/detection-history/:id', (req, res) => {
+  const { totalPrice } = req.body;
+  const historyId = req.params.id;
+  
+  if (!totalPrice || isNaN(totalPrice)) {
+    return res.status(400).json({ error: 'Valid total price is required' });
+  }
+  
+  const query = 'UPDATE detection_history SET total_price = ? WHERE id = ?';
+  db.run(query, [totalPrice, historyId], function(err) {
+    if (err) {
+      console.error('Error updating detection history:', err.message);
+      return res.status(500).json({ error: 'Failed to update detection history' });
+    }
+    
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Detection history not found' });
+    }
+    
+    res.json({ success: true, message: 'Detection history updated' });
+  });
+});
+
+// API to get all detection history
+app.get('/api/detection-history', (req, res) => {
+  const query = 'SELECT * FROM detection_history ORDER BY created_at DESC';
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching detection history:', err.message);
+      return res.status(500).json({ error: 'Failed to fetch detection history' });
+    }
+    res.json(rows);
+  });
+});
 
 // Route to fetch detected items for a specific scene
 app.get("/detected-items", (req, res) => {
@@ -237,12 +307,57 @@ app.get("/products", (req, res) => {
   });
 });
 
+// Delete a product by ID
+app.delete("/api/products/:id", (req, res) => {
+  const productId = req.params.id;
+  if (!productId) {
+    return res.status(400).json({ error: "Product ID is required" });
+  }
+  
+  // First, get the product to delete its image file
+  const getQuery = "SELECT url FROM products WHERE id = ?";
+  db.get(getQuery, [productId], (err, row) => {
+    if (err) {
+      console.error(`Error finding product: ${err.message}`);
+      return res.status(500).json({ error: "Error finding product" });
+    }
+    
+    if (!row) {
+      return res.status(404).json({ error: `Product with ID ${productId} not found` });
+    }
+    
+    // Delete the product from the database
+    const deleteQuery = "DELETE FROM products WHERE id = ?";
+    db.run(deleteQuery, [productId], function(err) {
+      if (err) {
+        console.error(`Error deleting product: ${err.message}`);
+        return res.status(500).json({ error: "Error deleting product from database" });
+      }
+      
+      // If the product had an associated image, try to delete it
+      if (row.url) {
+        const imagePath = path.join(__dirname, '..', row.url);
+        fs.unlink(imagePath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error(`Error deleting image file: ${unlinkErr.message}`);
+            // Continue with the response even if image deletion fails
+          }
+          res.json({ message: `Product with ID ${productId} deleted successfully` });
+        });
+      } else {
+        res.json({ message: `Product with ID ${productId} deleted successfully` });
+      }
+    });
+  });
+});
+
+// Get product details by name
 app.get("/product-details", (req, res) => {
   const name = req.query.name;
   if (!name) {
     return res.status(400).json({ error: "Product name is required" });
   }
-  const query = "SELECT name, price, url FROM products WHERE name = ?";
+  const query = "SELECT id, name, price, category, brand, url FROM products WHERE name = ?";
   db.get(query, [name], (err, row) => {
     if (err) {
       console.error(`Error querying product details: ${err.message}`);
@@ -254,6 +369,7 @@ app.get("/product-details", (req, res) => {
     res.json(row);
   });
 });
+
 // Serve the index.html file
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
