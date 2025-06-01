@@ -1,0 +1,11 @@
+streamlit==1.39.0
+requests==2.32.3
+Pillow==10.4.0
+flask
+flask-cors
+flask_sqlalchemy
+flask_login
+flask-wtf
+scipy
+flask-cors==3.0.10
+kafka-python==2.0.2

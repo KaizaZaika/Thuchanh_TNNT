@@ -82,9 +82,10 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
    cd Thuchanh_TNNT
    ```
 
-2. Pull Image từ Docker Hub
+2. Pull Images từ Docker Hub
    ```bash
-   docker pull lha151105/thuchanh_tnnt
+   docker pull lha151105/thuchanh_tnnt-frontend:latest
+   docker pull lha151105/thuchanh_tnnt-backend:latest
    ```
 
 3. Khởi tạo hệ thống
@@ -102,17 +103,26 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 .
 ├── backend/               # Backend application
 │   ├── controllers/       # Request handlers
-│   ├── models/            # Database models
-│   ├── routes/            # API routes
-│   ├── utils/             # Utility functions
-│   ├── server.js          # Main server file
-│   └── requirements.txt   # Python dependencies
-├── frontend/              # Frontend application
-│   ├── css/               # Stylesheets
-│   ├── js/                # JavaScript files
-│   └── index.html         # Main HTML file
-├── docker-compose.yml     # Docker Compose configuration
-└── Dockerfile            # Docker configuration
+│   ├── models/           # Database models
+│   ├── routes/           # API routes
+│   ├── utils/            # Utility functions
+│   ├── server.js         # Main server file
+│   ├── products.db       # SQLite database
+│   ├── images/           # Uploaded product images
+│   ├── uploads/          # File uploads directory
+│   └── requirements.txt  # Python dependencies
+├── frontend/             # Frontend application
+│   ├── css/              # Stylesheets
+│   ├── js/               # JavaScript files
+│   ├── images/           # Static images
+│   ├── uploads/          # Uploaded files
+│   ├── *.html            # HTML templates
+│   └── Dockerfile        # Frontend Docker configuration
+├── backend/              # Backend Docker context
+│   └── Dockerfile        # Backend Docker configuration
+├── data/                 # Persistent data
+├── docker-compose.yml    # Docker Compose configuration
+└── README.md            # Project documentation
 ```
 
 ## 🛠️ Development
@@ -124,6 +134,28 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 
 
 
+
+## 🏗️ Kiến trúc hệ thống
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Backend       │    │   Database      │
+│   (HTML/JS)     │◄──►│   (Node.js)     │◄──►│   (SQLite)      │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                ▲
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │   File Upload   │
+                       │   (Images)      │
+                       └─────────────────┘
+```
+
+### Mô tả các thành phần:
+- **Frontend**: Giao diện người dùng được xây dựng bằng HTML, CSS và JavaScript
+- **Backend**: Xử lý logic nghiệp vụ, API endpoints (Node.js)
+- **Database**: Lưu trữ dữ liệu sản phẩm (SQLite)
+- **File Upload**: Xử lý tải lên và lưu trữ hình ảnh sản phẩm
 
 ## 🙏 Acknowledgments
 

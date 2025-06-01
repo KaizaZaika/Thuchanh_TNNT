@@ -31,11 +31,11 @@ from utils.matchers import find_matcher_matrix
 from utils.bbox_filtering import find_bboxes
 
 # Images Path
-scene_folder = './images/scenes/'
-model_folder = './images/models/'
-video_folder = './images/videos/'
-results_folder = './images/results/'
-db_path = './products.db'
+scene_folder = './backend/images/scenes/'
+model_folder = './backend/images/models/'
+video_folder = './backend/images/videos/'
+results_folder = './backend/images/results/'
+db_path = '../frontend/products.db'
 export_file = results_folder + "detected_items.json"
 os.makedirs(results_folder, exist_ok=True)
 #reloads external modules when they are changed
@@ -118,10 +118,10 @@ for name in listdir(model_folder):
 
 
 ### Initialization of Super Resolution 
-train_dict = {1: ['fsrcnn', './weights/FSRCNN-small_x4.pb'],
-              2: ['espcn', './weights/ESPCN_x4.pb'],
-              3: ['edsr', './weights/EDSR_x4.pb'],
-              4: ['lapsrn', './weights/LapSRN_x4.pb']}
+train_dict = {1: ['fsrcnn', './backend/weights/FSRCNN-small_x4.pb'],
+              2: ['espcn', './backend/weights/ESPCN_x4.pb'],
+              3: ['edsr', './backend/weights/EDSR_x4.pb'],
+              4: ['lapsrn', './backend/weights/LapSRN_x4.pb']}
 nn_used = 4
 
 sr = cv2.dnn_superres.DnnSuperResImpl_create()

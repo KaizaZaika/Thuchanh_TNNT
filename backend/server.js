@@ -4,10 +4,12 @@ const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
 const { exec } = require("child_process");
+const cors = require("cors");
 const app = express();
 const PORT = 3200;
 
 // Middleware to parse form data
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -31,8 +33,15 @@ app.use(
 // Serve static files from backend/images
 app.use("/images", express.static(path.join(__dirname, "images")));
 
+console.log("Server.js: Đang cố gắng kết nối cơ sở dữ liệu..."); // LOG 2
 // Initialize SQLite database
-const db = new sqlite3.Database("./products.db");
+const db = new sqlite3.Database("./backend/products.db", (err) => {
+    if (err) {
+        console.error("Server.js: Lỗi kết nối CSDL:", err.message); // LOG 3 (Lỗi khi kết nối)
+    } else {
+        console.log("Server.js: Kết nối CSDL thành công."); // LOG 4 (Kết nối thành công)
+    }
+});
 
 // Route to clean up database entries with missing image files
 app.get("/cleanup-database", (req, res) => {
@@ -138,7 +147,7 @@ app.post(
     console.log(`File saved at: ${savedFilePath}`);
 
     exec(
-      `python product_recognition.py ${fileName}`,
+      `python3 ${path.join(__dirname, "product_recognition.py")} ${fileName}`,
       (error, stdout, stderr) => {
         if (error) {
           console.error(`Error running product recognition: ${error.message}`);
@@ -215,12 +224,15 @@ app.get("/test-db", (req, res) => {
 });
 
 // Route to fetch products from the database
+// Route to fetch products from the database
 app.get("/products", (req, res) => {
+  console.log("Server.js: Nhận được yêu cầu GET /products"); // LOG 5
   db.all("SELECT * FROM products", [], (err, rows) => {
     if (err) {
-      console.error("Error querying database:", err.message);
+      console.error("Server.js: Lỗi truy vấn CSDL:", err.message); // LOG 6 (Lỗi truy vấn)
       return res.status(500).send("Error fetching products from database");
     }
+    console.log("Server.js: Truy vấn sản phẩm thành công, gửi", rows.length, "sản phẩm."); // LOG 7 (Thành công)
     res.json(rows);
   });
 });
