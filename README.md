@@ -30,22 +30,77 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 
 #### UC1: Quét Và Nhận Diện Sản Phẩm
 - **Tác nhân**: Người dùng/Nhân viên bán hàng
-- **Mục tiêu**: Nhận diện sản phẩm từ hình ảnh
-- **Luồng thực hiện**:
+- **Mô tả**: Nhận diện sản phẩm từ hình ảnh
+- **Tiền điều kiện**: Hệ thống hoạt động bình thường
+- **Luồng sự kiện chính**:
+  1. Người dùng chọn mục "Thêm ảnh nhận diện"
   1. Người dùng tải lên hình ảnh sản phẩm
-  2. Hệ thống xử lý và nhận diện sản phẩm
-  3. Hiển thị thông tin sản phẩm và giá cả
-
-#### UC2: Tính Toán Tổng Giá Trị Đơn Hàng
-- **Tác nhân**: Người dùng/Thu ngân
-- **Mục tiêu**: Tính tổng giá trị các sản phẩm đã quét
-- **Luồng thực hiện**:
-  1. Hệ thống nhận diện từng sản phẩm
-  2. Tự động cộng dồn giá trị
-  3. Hiển thị tổng tiền và chi tiết đơn hàng
-
+  2. Hệ thống xử lý và nhận diện xử lí ảnh, phát hiện và nhận diện sản phẩm
+  3. Hệ thống kiểm tra giá sản phẩm trong CSDL
+  4. Hiển thị thông tin sản phẩm được nhận diện và tổng giá đơn hàng
+- **Luồng rẽ nhánh**:
+  Nếu ảnh không hợp lệ hoặc không nhận diện được sản phẩm, hệ thống hiển thị lỗi cho người dùng.
+- **Ngoại lệ**:
+  Nếu có lỗi (VD: không kết nối được CSDL) hệ thống hiển thị thông báo cho người dùng
+- **Hậu điều kiện**:
+  Hiển thị danh sách sản phẩm được nhận diện và tổng giá cho người dùng
 
 
+#### UC2: Thêm sản phẩm vào CSDL
+- **Tác nhân**: Người dùng/Quản trị viên
+- **Mô tả**: Cho phép người dùng thêm một sản phẩm mới vào hệ thống.
+- **Tiền điều kiện**: Hệ thống hoạt động bình thường
+- **Luồng sự kiện chính**:
+  1. Người dùng chọn mục "Thêm sản phẩm"
+  2. Hệ thống hiển thị form nhập thông tin sản phẩm (tên, giá, loại hàng, hãng, hình ảnh)
+  3. Người dùng nhập đầy đủ thông tin và nhấn nút "Thêm"
+  4. Người dùng nhấn nút "Thêm"
+  5. Hệ thống kiểm tra và lưu sản phẩm mới vào CSDL
+  6. Hiển thị thông báo lưu thành công
+- **Luồng rẽ nhánh**:
+  1. Nếu dữ liệu nhập thiếu, hệ thống hiển thị lỗi, yêu cầu nhập lại
+  2. Nếu hệ thống kiểm tra đã tồn tại sản phẩm trong CSDL, hiển thị thông báo lỗi
+- **Ngoại lệ**: Nếu có lỗi (VD: không kết nối được CSDL) hệ thống hiển thị thông báo cho người dùng
+- **Hậu điều kiện**:
+  Hệ thống hiển thị "Thêm sản phẩm thành công"
+
+#### UC3: Xóa sản phẩm khỏi CSDL
+- **Tác nhân**: Người dùng/Quản trị viên
+- **Mô tả**: Quản trị viên có thể xóa một sản phẩm khỏi hệ thống
+- **Tiền điều kiện**:
+  - Sản phẩm cần xóa có trong hệ thống
+  - Hệ thống hoạt động bình thường
+- **Luồng sự kiện chính**:
+  1. Quản trị viên truy cập trang quản lý sản phẩm.
+  2. Hệ thống hiển thị danh sách các sản phẩm hiện có.
+  3. Quản trị viên chọn sản phẩm muốn xóa và nhấn nút "Xóa".
+  4. Hệ thống hiển thị hộp thoại xác nhận việc xóa sản phẩm.
+  5. Quản trị viên xác nhận xóa.
+  6. Hiển thị thông báo lưu thành công
+  7. Hệ thống xóa sản phẩm khỏi CSDL
+  8. Thông báo cho quản trị viên biết sản phẩm đã được xóa thành công.
+- **Luồng rẽ nhánh**:
+  1. Nếu quản trị viên hủy xác nhận xóa, hệ thống không thực hiện thao tác xóa.
+  2. Nếu backend trả về lỗi (ví dụ: không tìm thấy sản phẩm, lỗi kết nối), hệ thống hiển thị thông báo lỗi cho quản trị viên.
+- **Ngoại lệ**: Nếu có lỗi (VD: không kết nối được CSDL) hệ thống hiển thị thông báo cho người dùng
+- **Hậu điều kiện**:
+  Sản phẩm bị xóa sẽ không còn xuất hiện trong danh sách sản phẩm.
+
+
+#### UC4: Xem lịch sử nhận diện
+- **Tác nhân**: Người dùng/Thu ngân/Quản trị viên
+- **Mô tả**: Người dùng có thể xem lại lịch sử các lần nhận diện hàng hóa đã thực hiện trên hệ thống.
+- **Tiền điều kiện**: Hệ thống đã lưu lại các lần nhận diện trước đó.
+- **Luồng sự kiện chính**:
+  1. Người dùng truy cập vào trang "Lịch sử nhận diện" (nhấn vào menu "Lịch sử").
+  2. Hệ thống truy vấn cơ sở dữ liệu
+  3. Hệ thống hiển thị danh sách các lần nhận diện (bao gồm: thời gian, hình ảnh, kết quả nhận diện, tổng giá).
+- **Luồng rẽ nhánh**:
+   Nếu không có dữ liệu lịch sử, hệ thống hiển thị thông báo "Chưa có lịch sử nhận diện".
+- **Ngoại lệ**: Nếu có lỗi (VD: không kết nối được CSDL) hệ thống hiển thị thông báo cho người dùng
+- **Hậu điều kiện**:
+  Người dùng xem được danh sách các lần nhận diện đã thực hiện.
+  
 ## 🚀 Liên kết
 
 - **Product Detection**: Tự động phát hiện sản phẩm trong hình ảnh bằng công nghệ thị giác máy tính.
@@ -84,8 +139,8 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 
 2. Pull Images từ Docker Hub
    ```bash
-   docker pull lha151105/thuchanh_tnnt-frontend
-   docker pull lha151105/thuchanh_tnnt-backend
+   docker pull lha151105/thuchanh_tnnt-frontend:latest
+   docker pull lha151105/thuchanh_tnnt-backend:latest
    ```
 
 3. Khởi tạo hệ thống
