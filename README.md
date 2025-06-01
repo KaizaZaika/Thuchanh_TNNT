@@ -93,7 +93,7 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
    docker-compose up -d
    ```
 4. Truy cập hệ thống
-   - Web Interface: http://localhost:3000
+   - Web Interface: http://localhost:3200
 
    
 
