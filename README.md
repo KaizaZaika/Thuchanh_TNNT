@@ -4,8 +4,8 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 
 ## 👥 Thành Viên
 
-- Vũ Bảo Chinh (Nhóm Trưởng)
-- Lê Hồng Anh
+- Lê Hồng Anh (Nhóm Trưởng)
+- Vũ Bảo Chinh 
 - Đỗ Việt Dũng
 
 ## 📝 Mô Tả Dự Án
