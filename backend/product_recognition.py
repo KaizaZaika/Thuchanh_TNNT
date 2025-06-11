@@ -31,11 +31,25 @@ from utils.matchers import find_matcher_matrix
 from utils.bbox_filtering import find_bboxes
 
 # Images Path
-scene_folder = './backend/images/scenes/'
-model_folder = './backend/images/models/'
-video_folder = './backend/images/videos/'
-results_folder = './backend/images/results/'
-db_path = '../frontend/products.db'
+import os
+from pathlib import Path
+
+# Get the absolute path to the backend directory
+BASE_DIR = Path(__file__).parent.absolute()
+
+# Define paths relative to the backend directory
+scene_folder = os.path.join(BASE_DIR, 'images', 'scenes') + os.sep
+model_folder = os.path.join(BASE_DIR, 'images', 'models') + os.sep
+video_folder = os.path.join(BASE_DIR, 'images', 'videos') + os.sep
+results_folder = os.path.join(BASE_DIR, 'images', 'results') + os.sep
+weights_folder = os.path.join(BASE_DIR, 'weights') + os.sep
+db_path = os.path.join(BASE_DIR, '..', 'frontend', 'products.db')
+
+# Create necessary directories if they don't exist
+os.makedirs(scene_folder, exist_ok=True)
+os.makedirs(model_folder, exist_ok=True)
+os.makedirs(video_folder, exist_ok=True)
+os.makedirs(results_folder, exist_ok=True)
 export_file = results_folder + "detected_items.json"
 os.makedirs(results_folder, exist_ok=True)
 #reloads external modules when they are changed
@@ -66,9 +80,32 @@ if len(sys.argv) > 1:
     scene_filenames = sys.argv[1:]  # Use filenames passed as arguments
 else:
     scene_filenames = ['e4.png']  # Default value if no arguments are provided
-# Read images
-im_scene_list_original = [cv2.cvtColor(cv2.imread(scene_folder + name), cv2.COLOR_BGR2RGB) for name in scene_filenames]
-im_model_list_original = [cv2.cvtColor(cv2.imread(model_folder + name), cv2.COLOR_BGR2RGB) for name in model_filenames]
+# Read images with error handling
+im_scene_list_original = []
+for name in scene_filenames:
+    img_path = os.path.join(scene_folder, name)
+    print(f"Attempting to read image from: {img_path}")  # Debug print
+    if not os.path.exists(img_path):
+        print(f"Error: File not found: {img_path}")
+        continue
+    img = cv2.imread(img_path)
+    if img is None:
+        print(f"Error: Could not read image: {img_path}")
+        continue
+    im_scene_list_original.append(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+
+im_model_list_original = []
+for name in model_filenames:
+    img_path = os.path.join(model_folder, name)
+    print(f"Attempting to read model image: {img_path}")  # Debug print
+    if not os.path.exists(img_path):
+        print(f"Error: Model file not found: {img_path}")
+        continue
+    img = cv2.imread(img_path)
+    if img is None:
+        print(f"Error: Could not read model image: {img_path}")
+        continue
+    im_model_list_original.append(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 # Resize scene images to smaller dimensions
 """im_scene_list_original = [
     cv2.resize(im, (im.shape[1] // 2, im.shape[0] // 2), interpolation=cv2.INTER_AREA)
@@ -118,10 +155,12 @@ for name in listdir(model_folder):
 
 
 ### Initialization of Super Resolution 
-train_dict = {1: ['fsrcnn', './backend/weights/FSRCNN-small_x4.pb'],
-              2: ['espcn', './backend/weights/ESPCN_x4.pb'],
-              3: ['edsr', './backend/weights/EDSR_x4.pb'],
-              4: ['lapsrn', './backend/weights/LapSRN_x4.pb']}
+train_dict = {
+    1: ['fsrcnn', os.path.join(weights_folder, 'FSRCNN-small_x4.pb')],
+    2: ['espcn', os.path.join(weights_folder, 'ESPCN_x4.pb')],
+    3: ['edsr', os.path.join(weights_folder, 'EDSR_x4.pb')],
+    4: ['lapsrn', os.path.join(weights_folder, 'LapSRN_x4.pb')]
+}
 nn_used = 4
 
 sr = cv2.dnn_superres.DnnSuperResImpl_create()

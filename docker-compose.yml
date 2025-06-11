@@ -2,20 +2,23 @@ version: '3.8'
 
 services:
   backend:
-    image: lha151105/thuchanh_tnnt-backend:latest
+    image: lha151105/thuchanh-backend:latest
     ports:
       - "3200:3200"
     volumes:
       - ./backend/products.db:/app/backend/products.db
       - ./backend/images:/app/backend/images
       - ./backend/uploads:/app/backend/uploads
-      - ./data:/app/data
     restart: always
+    environment:
+      - NODE_ENV=production
 
   frontend:
-    image: lha151105/thuchanh_tnnt-frontend:latest
+    image: lha151105/thuchanh-frontend:latest
     ports:
       - "80:80"
     depends_on:
       - backend
     restart: always
+    environment:
+      - NODE_ENV=production

@@ -18,12 +18,18 @@ COPY backend/package*.json ./backend/
 
 RUN npm install --prefix ./backend
 
-COPY backend/ ./backend/
-COPY frontend/ ./frontend/
-COPY data/ ./data/
+# Copy requirements first to leverage Docker cache
+COPY backend/requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt --break-system-packages
 
+# Copy the rest of the application
+COPY . .
 
-RUN pip3 install --no-cache-dir -r backend/requirements.txt --break-system-packages
+# Create necessary directories
+RUN mkdir -p /app/backend/weights
+
+# Copy weights
+COPY backend/weights/*.pb /app/backend/weights/
 
 EXPOSE 3200
 

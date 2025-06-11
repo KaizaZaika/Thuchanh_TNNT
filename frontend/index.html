@@ -29,42 +29,53 @@
       <nav class="navbar">
         <a href="#home">home</a>
         <a href="#products">products</a>
-        <a href="#categories">categories</a>
+        
         <a href="history.html" class="history-link">Lịch sử</a>
       </nav>
 
       <div class="icons">
-        <div class="fas fa-bars" id="menu-btn"></div>
-        <div class="fas fa-search" id="search-btn"></div>
-        <div class="fas fa-shopping-cart" id="cart-btn"></div>
+        <div class="user-menu">
         <div class="fas fa-user" id="login-btn"></div>
+        <!-- Login Form -->
+        <form id="loginForm" class="login-form" style="display: none;">
+          <h3>Đăng nhập</h3>
+          <input type="text" id="username" placeholder="Tên đăng nhập" class="box" required>
+          <input type="password" id="password" placeholder="Mật khẩu" class="box" required>
+          <button type="submit" class="btn">Đăng nhập</button>
+        </form>
+        <!-- User Dropdown -->
+        <div class="logout-dropdown" id="logout-dropdown" style="display: none;">
+          <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <span>Admin</span>
+          </div>
+          <button onclick="logout()" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Đăng xuất</span>
+          </button>
+        </div>
       </div>
-
-      <form action="" class="search-form">
-        <input type="search" id="search-box" placeholder="search here..." />
-        <label for="search-box" class="fas fa-search"></label>
-      </form>
+        <div class="fas fa-shopping-cart" id="cart-btn"></div>
+        <div class="fas fa-bars" id="menu-btn"></div>
+      </div>
 
       <div class="shopping-cart">
         <div class="tab-container">
           <!-- Tab Navigation -->
-          <div class="tabs">
-            <button
-              class="tab-link active"
-              onclick="openTab(event, 'add-product')"
-            >
+          <div class="tabs" id="adminTabs">
+            <button class="tab-link admin-only" onclick="openTab(event, 'add-product')" style="display: none;">
               Thêm sản phẩm
             </button>
             <button class="tab-link" onclick="openTab(event, 'add-category')">
               Thêm ảnh nhận diện
             </button>
-            <button class="tab-link" onclick="openTab(event, 'manage-products'); fetchProducts()">
+            <button class="tab-link admin-only" onclick="openTab(event, 'manage-products'); fetchProducts()" style="display: none;">
               Quản lý sản phẩm
             </button>
           </div>
 
           <!-- Tab Content -->
-          <div id="add-product" class="tab-content active">
+          <div id="add-product" class="tab-content admin-only" style="display: none;">
             <form
               action="http://localhost:3200/add-product"
               method="POST"
@@ -112,7 +123,7 @@
             </form>
           </div>
 
-          <div id="add-category" class="tab-content">
+          <div id="add-category" class="tab-content" style="display: none;">
             <form
               action="http://localhost:3200/add-category"
               method="POST"
@@ -135,11 +146,17 @@
                 accept="image/*"
                 required
               />
-              <input type="submit" value="Thêm" class="btn" />
+              <button type="submit" class="btn" id="addCategoryBtn">
+                <span class="btn-text">Thêm</span>
+              </button>
+              <div id="loadingMessage" style="display: none; text-align: center; margin-top: 10px; color: #ff6b00; font-weight: 500;">
+                Đang xử lý<span class="loading-dots">...</span>
+              </div>
+            </form>
           </div>
 
           <!-- Quản lý sản phẩm Tab Content -->
-          <div id="manage-products" class="tab-content">
+          <div id="manage-products" class="tab-content admin-only" style="display: none;">
             <div class="products-management">
               <h3>Quản lý sản phẩm</h3>
               <div class="search-box">
@@ -330,14 +347,23 @@
         </script>
       </div>
 
-      <form action="" class="login-form">
+      <form id="loginForm" class="login-form">
         <h3>login now</h3>
-        <input type="email" placeholder="your email" class="box" />
-        <input type="password" placeholder="your password" class="box" />
-        <p>forget your password <a href="#">click here</a></p>
-        <p>don't have a account <a href="#">create now</a></p>
+        <input type="text" id="username" placeholder="your username" class="box" required />
+        <input type="password" id="password" placeholder="your password" class="box" required />
         <input type="submit" value="login now" class="btn" />
       </form>
+      <div id="logoutBtn" class="login-form" style="display: none;">
+        <h3>Welcome, Admin</h3>
+        <button class="btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+      
+      <!-- Notification Popup -->
+      <div id="notification" class="notification-popup">
+        <span id="notification-message"></span>
+      </div>
     </header>
     <!-- header section ends -->
 
@@ -403,36 +429,7 @@
 
     <!-- categories section starts -->
 
-    <section class="categories" id="categories">
-      <h1 class="heading">product <span>categories</span></h1>
-      <div class="box-container">
-        <div class="box">
-          <img src="image/cat-1.png" alt="" />
-          <h3>vegetables</h3>
-          <p>upto 45% off</p>
-          <a href="#" class="btn">shop now</a>
-        </div>
-        <div class="box">
-          <img src="image/cat-2.png" alt="" />
-          <h3>fresh fruits</h3>
-          <p>upto 45% off</p>
-          <a href="#" class="btn">shop now</a>
-        </div>
-        <div class="box">
-          <img src="image/cat-3.png" alt="" />
-          <h3>dairy products</h3>
-          <p>upto 45% off</p>
-          <a href="#" class="btn">shop now</a>
-        </div>
-        <div class="box">
-          <img src="image/cat-4.png" alt="" />
-          <h3>fresh meat</h3>
-          <p>upto 45% off</p>
-          <a href="#" class="btn">shop now</a>
-        </div>
-      </div>
-    </section>
-
+    
     <!-- categories section ends -->
 
     <!-- review section starts -->
@@ -460,13 +457,13 @@
         <div class="box">
           <h3>content info</h3>
           <a href="#" class="links"
-            ><i class="fas fa-phone"></i> +92-321-4655990
+            ><i class="fas fa-phone"></i> +84-321-4655990
           </a>
           <a href="#" class="links contact-through-email"
-            ><i class="fas fa-envelope"></i> connectwithmawais@gmail.com
+            ><i class="fas fa-envelope"></i> 23020327@vnu.edu.vn
           </a>
           <a href="#" class="links"
-            ><i class="fas fa-map-marker-alt"></i> lahore, pakistan - 54840
+            ><i class="fas fa-map-marker-alt"></i> Đại học công nghệ, ĐHQGHN
           </a>
         </div>
         <div class="box">
@@ -478,8 +475,8 @@
           <a href="#products" class="links"
             ><i class="fas fa-arrow-right"></i> products
           </a>
-          <a href="#categories" class="links"
-            ><i class="fas fa-arrow-right"></i> categories
+          <a href="history.html" class="links"
+            ><i class="fas fa-arrow-right"></i> history
           </a>
         </div>
         <div class="box">

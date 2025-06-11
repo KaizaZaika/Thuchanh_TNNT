@@ -159,11 +159,25 @@ app.post(
     }
     const fileName = req.file.filename;
     const baseName = path.parse(fileName).name; // This will be used as sceneName
-    const savedFilePath = `/images/scenes/${fileName}`;
+    const savedFilePath = path.join(__dirname, 'images', 'scenes', fileName);
     console.log(`File saved at: ${savedFilePath}`);
 
+    // Verify the file was actually saved
+    if (!fs.existsSync(savedFilePath)) {
+      console.error(`Error: File was not saved correctly at ${savedFilePath}`);
+      return res.status(500).json({ error: "Failed to save the uploaded file" });
+    }
+
+    // Get the absolute path to the Python script
+    const pythonScriptPath = path.join(__dirname, 'product_recognition.py');
+    console.log(`Running Python script: ${pythonScriptPath} with file: ${fileName}`);
+
+    // Change working directory to the script's directory for consistent paths
+    const scriptDir = path.dirname(pythonScriptPath);
+    
     exec(
-      `python3 ${path.join(__dirname, "product_recognition.py")} ${fileName}`,
+      `python3 "${pythonScriptPath}" "${fileName}"`,
+      { cwd: scriptDir },
       (error, stdout, stderr) => {
         if (error) {
           console.error(`Error running product recognition: ${error.message}`);
@@ -206,12 +220,26 @@ app.post(
           db.get(insertQuery, [baseName, detectionImagePath], (err, row) => {
             if (err) {
               console.error("Error saving to detection history:", err.message);
+              // Check if the client accepts JSON
+              if (req.accepts('json')) {
+                return res.status(500).json({ 
+                  error: 'Error saving detection history',
+                  redirect: `/category_result.html?scene=${encodeURIComponent(baseName)}`
+                });
+              }
               return res.redirect(`/category_result.html?scene=${encodeURIComponent(baseName)}`);
             }
             
             const historyId = row.id;
-            // Redirect to category_result with both scene and historyId
-            res.redirect(`/category_result.html?scene=${encodeURIComponent(baseName)}&historyId=${historyId}`);
+            const redirectUrl = `/category_result.html?scene=${encodeURIComponent(baseName)}&historyId=${historyId}`;
+            
+            // Check if the client accepts JSON
+            if (req.accepts('json')) {
+              return res.json({ redirect: redirectUrl });
+            }
+            
+            // Default to HTML redirect
+            res.redirect(redirectUrl);
           });
         });
       }
