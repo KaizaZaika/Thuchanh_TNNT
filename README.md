@@ -139,8 +139,8 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
 
 2. Pull Images từ Docker Hub
    ```bash
-   docker pull lha151105/thuchanh_tnnt-frontend:latest
-   docker pull lha151105/thuchanh_tnnt-backend:latest
+   docker pull lha151105/thuchanh-frontend:latest
+   docker pull lha151105/thuchanh-backend:latest
    ```
 
 3. Khởi tạo hệ thống
@@ -149,7 +149,9 @@ Hệ thống sử dụng trí tuệ nhân tạo để phân tích hình ảnh, n
    ```
 4. Truy cập hệ thống
    - Web Interface: http://localhost:3200
-
+5. Đăng nhập với quyền quản trị
+   - **Tên đăng nhập**: admin
+   - **Mật khẩu**: admin
    
 
 ## 📂 Cấu trúc thư mục
